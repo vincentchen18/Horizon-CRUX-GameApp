@@ -70,7 +70,7 @@ def play():
     if vs_bot:
         print("You selected: Play vs Vinniebot")
         while True:
-            choice = input("Play as X or O (X goes first): ")
+            choice = input("Play as X or O (X goes first): ").upper()
             if choice == 'X':
                 human_symbol = 'X'
                 bot_symbol = 'O'
