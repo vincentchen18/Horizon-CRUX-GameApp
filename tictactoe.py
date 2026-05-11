@@ -93,12 +93,13 @@ def play():
 
         if vs_bot and current == bot_symbol: # vinniebot's turn
             print('Vinniebot is thinking', end="")
-            time.sleep(0.2)
+            time.sleep(0.4)
             print(".", end="")
-            time.sleep(0.2)
+            time.sleep(0.4)
             print(".", end="")
-            time.sleep(0.2)
+            time.sleep(0.4)
             print(".")
+            time.sleep(0.4)
             move = bot_move(board, bot_symbol, human_symbol)
             board[move] = bot_symbol
         else:
@@ -113,7 +114,7 @@ def play():
             if board[move] != " ":
                 print(f"There is already a {board[move]} there. Try again.")
                 continue
-            board[move] = human_symbol
+            board[move] = current
         winner = check_winner(board)
         if winner is not None:
             print_board(board)
@@ -124,6 +125,10 @@ def play():
                     print("You win! 🎉 ") # <--- this output should be impossible to obtain if i coded this right lol
             else:
                 print(f'Player {winner} wins! 🎉 ')
+            return
+        if ' ' not in board:
+            print_board(board)
+            print("It's a draw!")
             return
 
         # if no one wins, and the game is still going:
