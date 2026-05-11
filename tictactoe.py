@@ -54,7 +54,7 @@ def print_board(board):
     print("B  " + " | ".join(board[3:6]) + " ")
     print("  ---+---+---")
     print("C  " + " | ".join(board[6:]) + " ")
-print_board(['a','b','c','d','e','f','g','h','i'])
+
 def play():
     print("=== TIC TAC TOE ===")
     while True: # game loop
