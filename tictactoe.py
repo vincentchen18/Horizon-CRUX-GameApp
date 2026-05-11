@@ -45,3 +45,10 @@ def bot_move(board, bot_symbol, human_symbol):
             if score > best_score:
                 best_score, best_pos = score, i
     return best_pos
+
+def print_board(board):
+    print(" " + "|".join(board[:3]) + " ")
+    print("--+-+--")
+    print(" " + "|".join(board[3:6]) + " ")
+    print("--+-+--")
+    print(" " + "|".join(board[6:]) + " ")
