@@ -55,7 +55,7 @@ def print_board(board):
     print("  ---+---+---")
     print("C  " + " | ".join(board[6:]) + " ")
 
-def play():
+def tictactoeplay():
     print("=== TIC TAC TOE ===")
     while True: # game loop
         mode = input("1) Play vs Vinniebot      2) Play vs Human    Pick 1 or 2: ")
@@ -135,6 +135,6 @@ def play():
         current = "X" if current == "O" else "O"
 
 if __name__ == '__main__': # local testing
-    play()
+    tictactoeplay()
 
 # completed
