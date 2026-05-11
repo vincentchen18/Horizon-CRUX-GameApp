@@ -8,3 +8,32 @@ def connect4_check_win(board):
         if board[a-1] == board[b-1] == board[c-1] == board[d-1] and board[a-1] != ' ':
             return board[a-1]
         return None
+
+def connect4_minimax(board, is_bot_turn, bot_color, human_color):
+    winner = connect4_check_win(board)
+    if winner == bot_color:
+        return 1
+    if winner == human_color:
+        return -1
+    if ' ' not in board:
+        return 0
+
+    if is_bot_turn:
+        best = -999
+        for i in range(7):
+            movecell = max(x for x in range(i, i+36, 7) if board[x] == ' ')
+            board[movecell] = bot_color
+            score = connect4_minimax(board, False, bot_color, human_color)
+            board[movecell] = ' '
+            if score > best:
+                best = score
+    else:
+        best = 999
+        for i in range(7):
+            movecell = max(x for x in range(i, i+36, 7) if board[x] == ' ')
+            board[movecell] = human_color
+            score = connect4_minimax(board, True, bot_color, human_color)
+            board[movecell] = ' '
+            if score < best:
+                best = score
+    return best
