@@ -108,11 +108,12 @@ def play():
                 print("Please enter a valid coordinate from A1 to C3.")
                 continue
             row = 'ABC'.index(coord[0])
-            col = 'ABC'.index(coord[1])
+            col = '123'.index(coord[1])
             move = row*3 + col
             if board[move] != " ":
                 print(f"There is already a {board[move]} there. Try again.")
                 continue
+            board[move] = human_symbol
         winner = check_winner(board)
         if winner is not None:
             print_board(board)
