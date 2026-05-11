@@ -1,3 +1,4 @@
+import time
 def check_winner(board):
     lines = [(0,1,2),(3,4,5),(6,7,8),    # rows
              (0,3,6),(1,4,7),(2,5,8),    # columns
@@ -47,8 +48,85 @@ def bot_move(board, bot_symbol, human_symbol):
     return best_pos
 
 def print_board(board):
-    print(" " + "|".join(board[:3]) + " ")
-    print("--+-+--")
-    print(" " + "|".join(board[3:6]) + " ")
-    print("--+-+--")
-    print(" " + "|".join(board[6:]) + " ")
+    print('   1   2   3')
+    print("A  " + " | ".join(board[:3]) + " ")
+    print("  ---+---+---")
+    print("B  " + " | ".join(board[3:6]) + " ")
+    print("  ---+---+---")
+    print("C  " + " | ".join(board[6:]) + " ")
+print_board(['a','b','c','d','e','f','g','h','i'])
+def play():
+    print("=== TIC TAC TOE ===")
+    while True: # game loop
+        mode = input("1) Play vs Vinniebot      2) Play vs Human    Pick 1 or 2: ")
+        if mode == '1':
+            vs_bot = True
+            break
+        elif mode == '2':
+            vs_bot = False
+            break
+        else:
+            print("Please enter either 1 or 2.")
+    if vs_bot:
+        print("You selected: Play vs Vinniebot")
+        while True:
+            choice = input("Play as X or O (X goes first): ")
+            if choice == 'X':
+                human_symbol = 'X'
+                bot_symbol = 'O'
+                break
+            elif choice == 'O':
+                human_symbol = 'O'
+                bot_symbol = 'X'
+                break
+            print("Please enter either X or O.")
+    else:
+        #human vs human
+        human_symbol = None
+        bot_symbol = None
+
+    board = [' '] * 9 # initialise empty
+    current = 'X'
+    #game loop
+    while True:
+        print_board(board)
+
+        if vs_bot and current == bot_symbol: # vinniebot's turn
+            print('Vinniebot is thinking', end="")
+            time.sleep(0.2)
+            print(".", end="")
+            time.sleep(0.2)
+            print(".", end="")
+            time.sleep(0.2)
+            print(".")
+            move = bot_move(board, bot_symbol, human_symbol)
+            board[move] = bot_symbol
+        else:
+            # human turn
+            coord = input(f'Player {current}, please enter a cell to move (e.g. A1, B3, etc): ').strip().upper()
+            if len(coord) != 2 or coord[0] not in ['A','B','C'] or coord[1] not in ['1','2','3']:
+                print("Please enter a valid coordinate from A1 to C3.")
+                continue
+            row = 'ABC'.index(coord[0])
+            col = 'ABC'.index(coord[1])
+            move = row*3 + col
+            if board[move] != " ":
+                print(f"There is already a {board[move]} there. Try again.")
+                continue
+        winner = check_winner(board)
+        if winner is not None:
+            print_board(board)
+            if vs_bot:
+                if winner == bot_symbol:
+                    print('Vinniebot wins!')
+                else:
+                    print("You win! 🎉 ") # <--- this output should be impossible to obtain if i coded this right lol
+            else:
+                print(f'Player {winner} wins! 🎉 ')
+            return
+
+        # if no one wins, and the game is still going:
+        current = "X" if current == "O" else "O"
+
+if __name__ == '__main__': # local testing
+    play()
