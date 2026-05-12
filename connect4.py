@@ -108,3 +108,19 @@ def connect4_print_board(board):
         print_cells = [board[r*7+c] for c in range(7)]
         print("| " + " | ".join(print_cells) + " |")
     print()
+
+def connect4_play():
+    #1 - ask to play human or bot
+    while True:
+        raw = input('1) Play vs Vinniebot    2) Play vs Human    3) Exit    Please enter 1,2 or 3: ').strip()
+        if raw == '1':
+            vs_bot = True
+            break
+        elif raw == '2':
+            vs_bot = False
+            break
+        elif raw == '3':
+            return
+        else:
+            print("Please enter 1,2 or 3.")
+    board = [' '] * 42
