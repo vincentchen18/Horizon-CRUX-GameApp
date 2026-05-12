@@ -17,4 +17,33 @@ def get_drop_cell(board, col):
         return None
     return max(empties)
 
+def evaluate(board, bot_colour, human_colour):
+    # use a heuristic. Higher score is better
+    score = 0
+    for a,b,c,d in winning_lines:
+        window = [board[a-1],board[b-1],board[c-1],board[d-1]]
+        bot_count = window.count(bot_colour)
+        human_count = window.count(human_colour)
+        empty_count = window.count(' ')
 
+        if bot_count == 4: # winning position
+            score += 1000
+        elif bot_count == 3 and empty_count == 1: #one away
+            score += 10
+        elif bot_count == 2 and empty_count == 2:
+            score += 2
+
+        if human_count == 4: # enemy won
+            score -= 1000
+        elif human_count == 3 and empty_count == 1:
+            score -= 10
+        elif human_count == 2 and empty_count == 2:
+            score -= 2
+    #center column is better for more winning combos so make them weight more
+    center_indexes = [3+7*r for r in range(6)]
+    for idx in center_indexes:
+        if board[idx] == bot_colour:
+            score += 6
+        elif board[idx] == human_colour:
+            score -= 6
+    return score
