@@ -64,3 +64,13 @@ def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_c
         best = -999999
         for col in column_order:
             cell = get_drop_cell(board, col)
+            if cell is None:
+                continue
+            board[cell] = bot_colour
+            score = connect4_minimax(board, depth-1, False, alpha, beta, bot_colour, human_colour)
+            board[cell] = ' '
+            best = max(best, score)
+            alpha = max(alpha, best)
+            if beta <= alpha: #prune the tree
+                break
+        return best
