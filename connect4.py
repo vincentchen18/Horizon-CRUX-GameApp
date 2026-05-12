@@ -21,7 +21,7 @@ def connect4_minimax(board, is_bot_turn, bot_color, human_color):
     if is_bot_turn:
         best = -999
         for i in range(7):
-            movecell = max(x for x in range(i, i+36, 7) if board[x] == ' ')
+            movecell = max([x for x in range(i, i+36, 7) if board[x] == ' '])
             board[movecell] = bot_color
             score = connect4_minimax(board, False, bot_color, human_color)
             board[movecell] = ' '
@@ -30,10 +30,15 @@ def connect4_minimax(board, is_bot_turn, bot_color, human_color):
     else:
         best = 999
         for i in range(7):
-            movecell = max(x for x in range(i, i+36, 7) if board[x] == ' ')
+            movecell = max([x for x in range(i, i+36, 7) if board[x] == ' '])
             board[movecell] = human_color
             score = connect4_minimax(board, True, bot_color, human_color)
             board[movecell] = ' '
             if score < best:
                 best = score
     return best
+
+def bot_move(board, bot_color, human_color):
+    best_score, best_pos = -999, None
+    for i in range(7):
+        movecell = max([x for x in range(i, i+36, 7) if board[x] == ' '])
