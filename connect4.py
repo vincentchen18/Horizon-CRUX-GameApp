@@ -142,3 +142,23 @@ def connect4_play():
         else:
             print("Please enter 1,2 or 3.")
     board = [' '] * 42
+    current = '🔴'
+    #2 - if bot, ask if go first or 2nd
+    if vs_bot:
+        while True:
+            raw = input("Go first or second? Enter 1 or 2: ").strip()
+            if raw == '1':
+                human_colour = '🔴'
+                bot_colour = '🔵'
+                break
+            elif raw == '2':
+                human_colour = '🔵'
+                bot_colour = '🔴'
+                break
+            else:
+                print("Please enter 1 or 2.")
+    else:
+        bot_colour = None
+        human_colour = None
+    # main game loop
+
