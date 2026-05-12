@@ -9,7 +9,7 @@ def connect4_check_win(board):
             return board[a-1]
     return None
 
-def get_drop_cell(board, col):
+def connect4_get_drop_cell(board, col):
     # give a column, return which cell the counter is dropped to
     column_cells = [col + 7*r for r in range(6)]
     empties = [x for x in column_cells if board[x] == ' ']
@@ -17,7 +17,7 @@ def get_drop_cell(board, col):
         return None
     return max(empties)
 
-def evaluate(board, bot_colour, human_colour):
+def connect4_evaluate(board, bot_colour, human_colour):
     # use a heuristic. Higher score is better
     score = 0
     for a,b,c,d in winning_lines:
@@ -57,13 +57,13 @@ def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_c
     if ' ' not in board:
         return 0
     if depth == 0:
-        return evaluate(board, bot_colour, human_colour)
+        return connect4_evaluate(board, bot_colour, human_colour)
 
     column_order = [3,2,4,1,5,0,6]
     if is_bot_turn:
         best = -999999
         for col in column_order:
-            cell = get_drop_cell(board, col)
+            cell = connect4_get_drop_cell(board, col)
             if cell is None:
                 continue
             board[cell] = bot_colour
@@ -76,7 +76,7 @@ def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_c
     else:
         best = 999999
         for col in column_order:
-            cell = get_drop_cell(board, col)
+            cell = connect4_get_drop_cell(board, col)
             if cell is None:
                 continue
             board[cell] = human_colour
@@ -91,7 +91,7 @@ def connect4_botmove(board, bot_colour, human_colour, difficulty): # determine b
     best_score, best_column = -999999, None
     column_order = [3,2,4,1,5,0,6]
     for column in column_order:
-        cell = get_drop_cell(board, column)
+        cell = connect4_get_drop_cell(board, column)
         if cell is None:
             continue
         board[cell] = bot_colour
@@ -100,3 +100,5 @@ def connect4_botmove(board, bot_colour, human_colour, difficulty): # determine b
         if score > best_score:
             best_score, best_column = score, column
     return best_column
+
+def connect4_print_board(board):
