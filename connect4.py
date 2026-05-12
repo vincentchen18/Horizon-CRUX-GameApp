@@ -86,3 +86,17 @@ def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_c
             if beta <= alpha:
                 break
     return best
+
+def connect4_botmove(board, bot_colour, human_colour, difficulty): # determine best move by looking a few moves ahead
+    best_score, best_column = -999999, None
+    column_order = [3,2,4,1,5,0,6]
+    for column in column_order:
+        cell = get_drop_cell(board, column)
+        if cell is None:
+            continue
+        board[cell] = bot_colour
+        score = connect4_minimax(board, difficulty-1, False, -999999, 999999, bot_colour, human_colour)
+        board[cell] = ' '
+        if score > best_score:
+            best_score, best_column = score, column
+    return best_column
