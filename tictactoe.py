@@ -58,15 +58,17 @@ def print_board(board):
 def tictactoeplay():
     print("=== TIC TAC TOE ===")
     while True: # game loop
-        mode = input("1) Play vs Vinniebot      2) Play vs Human    Pick 1 or 2: ")
+        mode = input("1) Play vs Vinniebot      2) Play vs Human    3) Exit     Pick 1, 2 or 3: ")
         if mode == '1':
             vs_bot = True
             break
         elif mode == '2':
             vs_bot = False
             break
+        elif mode == '3':
+            return
         else:
-            print("Please enter either 1 or 2.")
+            print("Please enter either 1, 2 or 3.")
     if vs_bot:
         print("You selected: Play vs Vinniebot")
         while True:
