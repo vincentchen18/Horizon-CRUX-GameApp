@@ -102,3 +102,9 @@ def connect4_botmove(board, bot_colour, human_colour, difficulty): # determine b
     return best_column
 
 def connect4_print_board(board):
+    print()
+    print(' ' + "   ".join(list(map(str, range(1,8)))))
+    for r in range(6):
+        print_cells = [board[r*7+c] for c in range(7)]
+        print("| " + " | ".join(print_cells) + " |")
+    print()
