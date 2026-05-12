@@ -47,3 +47,20 @@ def evaluate(board, bot_colour, human_colour):
         elif board[idx] == human_colour:
             score -= 6
     return score
+
+def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_colour):
+    winner = connect4_check_win(board)
+    if winner == bot_colour:
+        return 100000
+    if winner == human_colour:
+        return -100000
+    if ' ' not in board:
+        return 0
+    if depth == 0:
+        return evaluate(board, bot_colour, human_colour)
+
+    column_order = [3,2,4,1,5,0,6]
+    if is_bot_turn:
+        best = -999999
+        for col in column_order:
+            cell = get_drop_cell(board, col)
