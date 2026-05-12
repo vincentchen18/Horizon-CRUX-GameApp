@@ -1,4 +1,4 @@
-import random
+import random, time
 def nim_setup(pile_num):
     return [random.randint(1,20) for i in range(pile_num)]
 
@@ -18,12 +18,39 @@ def nimbot(piles):
         piles[a] -= 1
         if piles[a] == 0:
             piles.pop(a)
-        return piles
+        return a, 1
     for i in range(len(piles)):
-        if (piles[i] ^ default) < piles[i]:
-            piles[i] ^= default
-            return piles
+        target = piles[i] ^ default
+        if target < piles[i]:
+            amount = piles[i] - target
+            piles[i] = target
+            return i, amount
+    return 0,0
 
+def nim_humanmove(piles, player_label):
+    while True:
+        raw = input(f"{player_label}, please enter pile and amount (e.g. 2 3 means take 3 from the 2nd pile): ")
+        parts = raw.replace(',',' ').split()
+        if len(parts) != 2:
+            print("Please enter pile and amount as numbers correctly.")
+            continue
+        try:
+            pile_index = int(parts[0])-1
+            amount = int(parts[1])
+        except ValueError:
+            print("Please enter numbers")
+            continue
+        if pile_index < 0 or pile_index >= len(piles):
+            print(f"Pile must be between 1 and {len(piles)}")
+            continue
+        if amount < 1:
+            print("You must take at least one counter.")
+            continue
+        if amount > piles[pile_index]:
+            print(f"Pile {pile_index+1} only has {piles[pile_index]} counters.")
+            continue
+        piles[pile_index] -= amount
+        return pile_index, amount
 def nimplay():
     print("=== NIM ===")
     while True:
@@ -47,6 +74,8 @@ def nimplay():
         if piles < 1 or piles > 10:
             print("Please enter a number from 1 to 10.")
             continue
+        pile_num = nim_setup(piles)
+        break
     turn = 0
     if vs_bot:
         while True:
@@ -63,4 +92,44 @@ def nimplay():
         is_bot_turn = False
         current = 1
 
+    # game loop
+    while True:
+        print_piles(pile_num)
 
+        if vs_bot and is_bot_turn:
+            print("Vinniebot is thinking", end="")
+            time.sleep(0.4)
+            print(".",end="")
+            time.sleep(0.4)
+            print(".", end="")
+            time.sleep(0.4)
+            print(".", end="")
+            time.sleep(0.4)
+            print()
+            pile_index, amount = nimbot(pile_num)
+            print(f"Vinniebot takes {amount} from pile {pile_index+1}.")
+        else:
+            if vs_bot:
+                label = "You"
+            else:
+                label = f'Player {current}'
+            nim_humanmove(pile_num, label)
+
+        pile_num[:] = [p for p in pile_num if p != 0]
+
+        if len(pile_num) == 0:
+            if vs_bot:
+                if is_bot_turn:
+                    print("Vinniebot wins! 🤖")
+                else:
+                    print("You win! 🎉")
+            else:
+                print(f"Player {current} wins! 🎉")
+            return
+
+        if vs_bot:
+            is_bot_turn = not is_bot_turn
+        else:
+            current = 3-current
+if __name__ == "__main__": #localtesting
+    nimplay()

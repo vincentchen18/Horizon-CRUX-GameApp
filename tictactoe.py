@@ -122,7 +122,7 @@ def tictactoeplay():
             print_board(board)
             if vs_bot:
                 if winner == bot_symbol:
-                    print('Vinniebot wins!')
+                    print('Vinniebot wins! 🤖')
                 else:
                     print("You win! 🎉 ") # <--- this output should be impossible to obtain if i coded this right lol
             else:
