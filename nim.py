@@ -2,6 +2,12 @@ import random
 def nim_setup(pile_num):
     return [random.randint(1,20) for i in range(pile_num)]
 
+def print_piles(pile_num):
+    print()
+    for index, number in enumerate(pile_num):
+        print(f"  Pile {index+1}: {'●' * number} ({number})")
+    print()
+
 def nimbot(piles):
     # computer optimal move
     default = 0
@@ -33,13 +39,14 @@ def nimplay():
         else:
             print("Please enter 1, 2 or 3")
     while True:
-        piles = input("Choose how many piles: ")
+        piles = input("Choose how many piles (1-10): ")
         if not piles.isdigit():
             print("Please enter a number.")
             continue
         piles = int(piles)
-        pile_numbers = nim_setup(piles)
-        break
+        if piles < 1 or piles > 10:
+            print("Please enter a number from 1 to 10.")
+            continue
     turn = 0
     if vs_bot:
         while True:
@@ -52,4 +59,8 @@ def nimplay():
                 break
             else:
                 print("Please enter 1 or 2")
+    else:
+        is_bot_turn = False
+        current = 1
+
 
