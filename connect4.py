@@ -109,6 +109,24 @@ def connect4_print_board(board):
         print("| " + " | ".join(print_cells) + " |")
     print()
 
+def connect4_humanmove(board, label, color):
+    while True:
+        a = input(f'{label}, please select a column 1-7: ').strip()
+        try:
+            a = int(a)
+            if a > 7 or a < 1:
+                print('Please select a column 1-7.')
+                continue
+            if connect4_get_drop_cell(board, a) is None:
+                print("That column is full!")
+                continue
+            else:
+                return a
+        except ValueError:
+            print('Please select a column 1-7.')
+            continue
+
+
 def connect4_play():
     #1 - ask to play human or bot
     while True:
