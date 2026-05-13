@@ -164,8 +164,11 @@ def connect4_play():
         bot_colour = None
         human_colour = None
     # main game loop
+    message = None
     while True:
         connect4_print_board(board)
+        if message is not None:
+            print(message)
         w = connect4_check_win(board)
         if vs_bot:
             if w == bot_colour:
@@ -186,12 +189,16 @@ def connect4_play():
             break
         if vs_bot:
             if is_bot_turn:
-                movecell = connect4_get_drop_cell(board, connect4_botmove(board, bot_colour, human_colour, 5))
+                move = connect4_botmove(board, bot_colour, human_colour, 5)
+                movecell = connect4_get_drop_cell(board, move)
+                message = f"Vinniebot plays column {move+1}."
                 board[movecell] = bot_colour
             else:
                 movecell = connect4_get_drop_cell(board, connect4_humanmove(board, 'You', human_colour))
                 board[movecell] = human_colour
+                message = None
         else:
+            message = None
             label = f'Player {current}'
             movecell = connect4_get_drop_cell(board, connect4_humanmove(board, label, human_colour))
             board[movecell] = current
