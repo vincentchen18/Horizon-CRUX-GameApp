@@ -206,5 +206,5 @@ def connect4_play():
         if vs_bot:
             is_bot_turn = not is_bot_turn
 
-
-connect4_play()
+if __name__ == '__main__':
+    connect4_play()
