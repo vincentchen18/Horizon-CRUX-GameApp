@@ -1,4 +1,4 @@
-import random
+import random, time
 def pig_botmove(points, roll_score):
     if roll_score + points >= 100:
         return "BANK"
@@ -39,3 +39,13 @@ def pig_play():
     else:
         p1score = 0
         p2score = 0
+    # gameloop
+    while True:
+        if vs_bot:
+            if is_bot_turn:
+                print("Vinniebot is rolling",end="")
+                for i in range(3):
+                    time.sleep(0.4)
+                    print(".",end="")
+                time.sleep(0.4)
+                roll = random.randint(1,6)
