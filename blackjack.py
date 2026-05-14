@@ -1,20 +1,20 @@
 suits = "♥♦♣♠"
 nums = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
-deck = [nums[i] + suits[j] for i in range(13) for j in range(4)]
 cardmapper = {'A':11, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8,"9":9,"10":10, "J":10,"Q":10,"K":10}
 import random, time
 
 def blackjack_setup():
+    deck = [nums[i] + suits[j] for i in range(13) for j in range(4)]
     random.shuffle(deck)
-    card1, card2, card3, card4 = deck[0], deck[1], deck[2], deck[3]
-    return card1, card2, card3, card4
+    return deck
 
-def neutralise(cards):
-    for card in range(len(cards)):
-        if cards[card] == 11:
-            cards[card] -= 10
-            return cards
-    return cards
+def hand_value(cards):
+    total = sum(cardmapper[c[:-1]] for c in cards)
+    aces = sum(1 for c in cards if c[:-1] == 'A')
+    while total > 21 and aces > 0:
+        total -= 10
+        aces -= 1
+    return total
 
 def blackjack_play():
     balance = 1000
@@ -33,6 +33,9 @@ def blackjack_play():
             money = input("$")
             try:
                 money = int(money)
+                if float(money) != int(money):
+                    print("Wager must be an integer.")
+                    continue
                 if money <= 0:
                     print("Wager must be greater than zero.")
                     continue
@@ -48,25 +51,61 @@ def blackjack_play():
                 continue
     # wager
 
-        mycard1, mycard2, dealercard1, dealercard2 = blackjack_setup()
-        mycards = [mycard1, mycard2]
+        deck = blackjack_setup()
+        mycards = [deck.pop(), deck.pop()]
+        dealercards = [deck.pop(),deck.pop()]
         print("Shuffling the cards", end="")
         for i in range(3):
             time.sleep(0.4)
             print(".",end="")
         time.sleep(0.4)
         print()
-        print(f"Your cards are {mycard1} and {mycard2}")
-        print(f"Dealer drew {dealercard1}")
-        total = cardmapper[mycard1[:-1]] + cardmapper[mycard2[:-1]]
-        if total == 21:
-            print(f"Dealer's second card was {dealercard2}, so his total is {cardmapper[dealercard1[:-1]] + cardmapper[dealercard2[:-1]]}")
-            if cardmapper[dealercard1[:-1]] + cardmapper[dealercard2[:-1]] == 21:
-                print("Tie, no money lost, none gained.")
-                balance += money
-                continue
-            print(f"BLACKJACK! You win ${int(money*1.5)}.")
-            balance += int(2.5*money)
-            continue
+        print(f"Your cards are {mycards[0]} and {mycards[1]}, summing to {hand_value(mycards)}")
+        print(f"Dealer drew {dealercards[0]}")
+        myTotal = hand_value(mycards)
+        dealerTotal = hand_value(dealercards)
+        meblackjack = myTotal == 21
+        dealerblackjack = dealerTotal == 21
+
+        if meblackjack and not dealerblackjack:
+            print(f"Dealer's second card was {dealercards[1]}, so his total is {dealerTotal}.")
+            print(f"BLACKJACK! 🎉 You won ${int(money*2.5)}!!!")
+            balance += int(money*2.5)
+        elif dealerblackjack and not meblackjack:
+            print(f"Dealer's second card was {dealercards[1]}, so his total is {dealerTotal}.")
+            print(f"Dealer blackjacked! You lose ${money}. :(")
+        elif dealerblackjack and meblackjack:
+            print(f"Dealer's second card was {dealercards[1]}, so his total is {dealerTotal}.")
+            print(f"TIE! You both blackjacked! You receive ${money} back.")
+            balance += money
+        else:
+            while myTotal < 21:
+                action = input("Hit or stand?").strip().upper()
+                if action == 'HIT':
+                    mycards.append(deck.pop())
+                    myTotal = hand_value(mycards)
+                    print(f"You drew {mycards[-1]}, making your new total {myTotal}.")
+                elif action == 'STAND':
+                    break
+                else:
+                    print("That is not a valid action. Please enter either Hit or Stand.")
+            skip = False
+            if myTotal > 21:
+                print(f"You bust! You lose ${money}. :(")
+                skip = True
+            if not skip:
+                print(f"Dealer's second card was {dealercards[1]}, so his hand is {" and ".join(dealercards)}, totaling {dealerTotal}.")
+                while dealerTotal < 17:
+                    print("Dealer is drawing until his total > 16.")
+                    dealercards.append(deck.pop())
+                    print("Dealer is drawing a card", end="")
+                    for i in range(3):
+                        time.sleep(0.4)
+                        print(".",end="")
+                    time.sleep(0.4)
+                    dealerTotal = hand_value(dealercards)
+                    print(f"Dealer drew {dealercards[-1]}, so his total is now {dealerTotal}.")
+
+
 
 blackjack_play()
