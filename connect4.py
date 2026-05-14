@@ -84,6 +84,7 @@ def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_c
             score = connect4_minimax(board, depth-1, True, alpha, beta, bot_colour, human_colour)
             board[cell] = '  '
             best = min(best, score)
+            beta = min(beta, best)
             if beta <= alpha:
                 break
     return best
