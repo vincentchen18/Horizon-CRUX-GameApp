@@ -41,7 +41,7 @@ def blackjack_play():
                     print("Wager must be greater than zero.")
                     continue
                 elif money > balance:
-                    print("You don't have enough money to wager this!.")
+                    print("You don't have enough money to wager this!")
                     continue
                 else:
                     print(f"Wagering ${money}.")
@@ -95,7 +95,7 @@ def blackjack_play():
                 print(f"You bust! You lose ${money}. :(")
                 skip = True
             if not skip:
-                print(f"Dealer's second card was {dealercards[1]}, so his hand is {" and ".join(dealercards)}, totaling {dealerTotal}.")
+                print(f"Dealer's second card was {dealercards[1]}, so his hand is {dealercards[0]} and {dealercards[1]}, totaling {dealerTotal}.")
                 while dealerTotal < 17:
                     print("Dealer is drawing until his total > 16.")
                     dealercards.append(deck.pop())
@@ -113,7 +113,7 @@ def blackjack_play():
                     print(f"You are closer to 21, you win ${money}!!")
                     balance += money*2
                 elif dealerTotal > myTotal:
-                    print(f"Dealer are closer to 21, you lose ${money}!!")
+                    print(f"Dealer is closer to 21, you lose ${money}!!")
                 else:
                     print(f"Push, you and the dealer tied. You get your wager of ${money} back.")
                     balance += money
