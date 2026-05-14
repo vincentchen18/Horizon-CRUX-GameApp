@@ -6,14 +6,14 @@ winning_lines = [(1,2,3,4),(2,3,4,5),(3,4,5,6),(4,5,6,7),(8,9,10,11),(9,10,11,12
                      (4,10,16,22),(5,11,17,23),(6,12,18,24),(7,13,19,25),(11,17,23,29),(12,18,24,30),(13,19,25,31),(14,20,26,32),(18,24,30,36),(19,25,31,37),(20,26,32,38),(21,27,33,39)] #backward diagonals
 def connect4_check_win(board):
     for a,b,c,d in winning_lines:
-        if board[a-1] == board[b-1] == board[c-1] == board[d-1] and board[a-1] != '⬛':
+        if board[a-1] == board[b-1] == board[c-1] == board[d-1] and board[a-1] != '  ':
             return board[a-1]
     return None
 
 def connect4_get_drop_cell(board, col):
     # give a column, return which cell the counter is dropped to
     column_cells = [col + 7*r for r in range(6)]
-    empties = [x for x in column_cells if board[x] == '⬛']
+    empties = [x for x in column_cells if board[x] == '  ']
     if not empties:
         return None
     return max(empties)
@@ -25,7 +25,7 @@ def connect4_evaluate(board, bot_colour, human_colour):
         window = [board[a-1],board[b-1],board[c-1],board[d-1]]
         bot_count = window.count(bot_colour)
         human_count = window.count(human_colour)
-        empty_count = window.count('⬛')
+        empty_count = window.count('  ')
 
         if bot_count == 4: # winning position
             score += 1000
@@ -55,7 +55,7 @@ def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_c
         return 100000
     if winner == human_colour:
         return -100000
-    if '⬛' not in board:
+    if '  ' not in board:
         return 0
     if depth == 0:
         return connect4_evaluate(board, bot_colour, human_colour)
@@ -69,7 +69,7 @@ def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_c
                 continue
             board[cell] = bot_colour
             score = connect4_minimax(board, depth-1, False, alpha, beta, bot_colour, human_colour)
-            board[cell] = '⬛'
+            board[cell] = '  '
             best = max(best, score)
             alpha = max(alpha, best)
             if beta <= alpha: #prune the tree
@@ -82,7 +82,7 @@ def connect4_minimax(board, depth, is_bot_turn, alpha, beta, bot_colour, human_c
                 continue
             board[cell] = human_colour
             score = connect4_minimax(board, depth-1, True, alpha, beta, bot_colour, human_colour)
-            board[cell] = '⬛'
+            board[cell] = '  '
             best = min(best, score)
             if beta <= alpha:
                 break
@@ -97,14 +97,14 @@ def connect4_botmove(board, bot_colour, human_colour, difficulty): # determine b
             continue
         board[cell] = bot_colour
         score = connect4_minimax(board, difficulty-1, False, -999999, 999999, bot_colour, human_colour)
-        board[cell] = '⬛'
+        board[cell] = '  '
         if score > best_score:
             best_score, best_column = score, column
     return best_column
 
 def connect4_print_board(board):
     print()
-    print('  ' + " ⬛ ".join(list(map(str, range(1,8)))))
+    print('  ' + "    ".join(list(map(str, range(1,8)))))
     for r in range(6):
         print_cells = [board[r*7+c] for c in range(7)]
         print("| " + " | ".join(print_cells) + " |")
@@ -143,7 +143,7 @@ def connect4_play():
             return
         else:
             print("Please enter 1,2 or 3.")
-    board = ['⬛'] * 42
+    board = ['  '] * 42
     current = '🔴'
     #2 - if bot, ask if go first or 2nd
     if vs_bot:
@@ -185,7 +185,7 @@ def connect4_play():
             elif w == '🔵':
                 print('Player 🔵 wins!')
                 break
-        if '⬛' not in board:
+        if '  ' not in board:
             print("It's a tie!")
             break
         if vs_bot:
