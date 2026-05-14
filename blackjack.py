@@ -9,6 +9,12 @@ def blackjack_setup():
     card1, card2, card3, card4 = deck[0], deck[1], deck[2], deck[3]
     return card1, card2, card3, card4
 
+def neutralise(cards):
+    for card in range(len(cards)):
+        if cards[card] == 11:
+            cards[card] -= 10
+            return cards
+    return cards
 
 def blackjack_play():
     balance = 1000
