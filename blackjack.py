@@ -128,5 +128,5 @@ def blackjack_play():
             else:
                 print("That is not a valid choice. Please enter Y or N.")
 
-
-blackjack_play()
+if __name__ == '__main__':
+    blackjack_play()
