@@ -17,6 +17,7 @@ def hand_value(cards):
     return total
 
 def blackjack_play():
+    print("=== BLACKJACK ===")
     balance = 1000
     while True:
         a = input("1) Play Blackjack    2) Exit    Please enter 1 or 2: ").strip()
