@@ -80,7 +80,7 @@ def blackjack_play():
             balance += money
         else:
             while myTotal < 21:
-                action = input("Hit or stand?").strip().upper()
+                action = input("Hit or stand? ").strip().upper()
                 if action == 'HIT':
                     mycards.append(deck.pop())
                     myTotal = hand_value(mycards)
@@ -105,7 +105,28 @@ def blackjack_play():
                     time.sleep(0.4)
                     dealerTotal = hand_value(dealercards)
                     print(f"Dealer drew {dealercards[-1]}, so his total is now {dealerTotal}.")
-
+                if dealerTotal > 21:
+                    print(f"Dealer busts, you win ${money}!!")
+                    balance += money*2
+                elif myTotal > dealerTotal:
+                    print(f"You are closer to 21, you win ${money}!!")
+                    balance += money*2
+                elif dealerTotal > myTotal:
+                    print(f"Dealer are closer to 21, you lose ${money}!!")
+                else:
+                    print(f"Push, you and the dealer tied. You get your wager of ${money} back.")
+                    balance += money
+            if balance <= 0:
+                print("Oh no, looks like you ran outta money. Game over.")
+                return
+            choice = input("Would you like to play again? (y/n): ").strip().upper()
+            if choice == 'Y':
+                continue
+            elif choice == 'N':
+                print(f"Thank you for playing, you leave with ${money}.")
+                return
+            else:
+                print("That is not a valid choice. Please enter Y or N.")
 
 
 blackjack_play()
