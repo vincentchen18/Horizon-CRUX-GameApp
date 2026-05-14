@@ -1,3 +1,4 @@
+import random
 def pig_botmove(points, roll_score):
     if roll_score + points >= 100:
         return "BANK"
@@ -5,3 +6,36 @@ def pig_botmove(points, roll_score):
         return "RISK"
     else:
         return "BANK"
+
+def pig_play():
+    print("=== PIG ===")
+    while True:
+        choice = input("1) Play vs Vinniebot    2) Play vs Human    3) Exit    Please enter 1,2 or 3: ").strip()
+        if choice == "1":
+            vs_bot = True
+            break
+        elif choice == "2":
+            vs_bot = False
+            break
+        elif choice == "3":
+            return
+        else:
+            print("Please enter either 1,2 or 3")
+    if vs_bot:
+        while True:
+            choice = input("Go first or second? Enter 1 or 2: ").strip()
+            if choice == "1":
+                is_bot_turn = False
+                botscore = 0
+                humanscore = 0
+                break
+            elif choice == "2":
+                is_bot_turn = True
+                botscore = 0
+                humanscore = 0
+                break
+            else:
+                print("Please enter either 1 or 2.")
+    else:
+        p1score = 0
+        p2score = 0
