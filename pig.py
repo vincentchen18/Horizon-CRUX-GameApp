@@ -46,13 +46,17 @@ def pig_play():
         if vs_bot:
             if botscore >= 100:
                 print("Vinniebot wins! 🤖")
+                return
             elif humanscore >= 100:
                 print("You win! 🎉")
+                return
         else:
             if p1score >= 100:
                 print("Player 1 wins! 🎉")
-            else:
+                return
+            elif p2score >= 100:
                 print("Player 2 wins! 🎉")
+                return
 
         if vs_bot:
             if is_bot_turn:
