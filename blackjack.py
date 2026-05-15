@@ -117,17 +117,17 @@ def blackjack_play():
                 else:
                     print(f"Push, you and the dealer tied. You get your wager of ${money} back.")
                     balance += money
-            if balance <= 0:
+        if balance <= 0:
                 print("Oh no, looks like you ran outta money. Game over.")
                 return
-            choice = input("Would you like to play again? (y/n): ").strip().upper()
-            if choice == 'Y':
-                continue
-            elif choice == 'N':
-                print(f"Thank you for playing, you leave with ${money}.")
-                return
-            else:
-                print("That is not a valid choice. Please enter Y or N.")
+        choice = input("Would you like to play again? (y/n): ").strip().upper()
+        if choice == 'Y':
+            continue
+        elif choice == 'N':
+            print(f"Thank you for playing, you leave with ${money}.")
+            return
+        else:
+            print("That is not a valid choice. Please enter Y or N.")
 
 if __name__ == '__main__':
     blackjack_play()

@@ -97,6 +97,6 @@ def pig_play():
                         print(f"You risk {running_score}.")
                         continue
         else:
-            pass #human vs human
+            break #human vs human
 
 pig_play()
