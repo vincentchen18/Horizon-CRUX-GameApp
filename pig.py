@@ -44,6 +44,17 @@ def pig_play():
     # gameloop
     while True:
         if vs_bot:
+            if botscore >= 100:
+                print("Vinniebot wins! 🤖")
+            elif humanscore >= 100:
+                print("You win! 🎉")
+        else:
+            if p1score >= 100:
+                print("Player 1 wins! 🎉")
+            else:
+                print("Player 2 wins! 🎉")
+
+        if vs_bot:
             if is_bot_turn:
                 print("Vinniebot is rolling",end="")
                 for i in range(3):
