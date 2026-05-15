@@ -58,29 +58,45 @@ def pig_play():
                     continue
                 else:
                     running_score += roll
+                    print(f"Vinniebot rolls {roll}, so his running score is now {running_score}!")
                     botaction = pig_botmove(botscore, running_score)
                     print(f"Vinniebot {botaction}S his score of {running_score}.")
                     if botaction == "BANK":
                         botscore += running_score
+                        print(f"Vinniebot's score is now {botscore}!")
                         running_score = 0
                         is_bot_turn = False
                         continue
                     else:
                         continue
             else:
-                print("Your turn! Press enter to roll.")
+                print("Your turn! Press enter to roll.", end="")
                 signal = input()
                 print("You are rolling",end="")
                 for i in range(3):
                     time.sleep(0.4)
                     print(".",end="")
                 time.sleep(0.4)
+
                 roll = random.randint(1,6)
                 if roll == 1:
-                    print(f"You roll a 1, losing your risked score of {running_score}")
+                    print(f"You roll a 1, losing your risked score of {running_score}.")
                     running_score = 0
                     is_bot_turn = True
                     continue
                 else:
                     running_score += roll
-                    pass
+                    action = input(f"You roll a {roll} and your running score is now {running_score}. Risk or bank?").strip().upper()
+                    if action == "BANK":
+                        humanscore += running_score
+                        print(f"You banked {running_score}, your score is now {humanscore}!")
+                        running_score = 0
+                        is_bot_turn = True
+                        continue
+                    elif action == "RISK":
+                        print(f"You risk {running_score}.")
+                        continue
+        else:
+            pass #human vs human
+
+pig_play()
