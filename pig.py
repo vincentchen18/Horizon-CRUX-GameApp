@@ -97,6 +97,37 @@ def pig_play():
                         print(f"You risk {running_score}.")
                         continue
         else:
-            break #human vs human
+            turn = current % 2
+            print(f"Player {turn+1}, please press enter to roll.", end="")
+            signal = input()
+            print("You are rolling",end="")
+            for i in range(3):
+                time.sleep(0.4)
+                print(".",end="")
+            time.sleep(0.4)
+            roll = random.randint(1,6)
+            if roll == 1:
+                print(f"You roll a 1, losing your risked score of {running_score}.")
+                running_score = 0
+                current += 1
+                continue
+            else:
+                running_score += roll
+                action = input(f"You roll a {roll} and your running score is now {running_score}. Risk or bank?").strip().upper()
+                if action == "BANK":
+                    if turn == 0:
+                        p1score += running_score
+                        print(f"You banked {running_score}, your score is now {p1score}!")
+
+                    else:
+                        p2score += running_score
+                        print(f"You banked {running_score}, your score is now {p2score}!")
+                    running_score = 0
+                    current += 1
+                    continue
+                elif action == "RISK":
+                    print(f"You risk {running_score}.")
+                    continue
+
 
 pig_play()
