@@ -86,7 +86,13 @@ def pig_play():
                     continue
                 else:
                     running_score += roll
-                    action = input(f"You roll a {roll} and your running score is now {running_score}. Risk or bank?").strip().upper()
+                    while True:
+
+                        action = input(f"You roll a {roll} and your running score is now {running_score}. Risk or bank?").strip().upper()
+                        if action not in ["RISK", "BANK"]:
+                            print("Please enter either RISK or BANK")
+                            continue
+                        break
                     if action == "BANK":
                         humanscore += running_score
                         print(f"You banked {running_score}, your score is now {humanscore}!")
@@ -113,12 +119,16 @@ def pig_play():
                 continue
             else:
                 running_score += roll
-                action = input(f"You roll a {roll} and your running score is now {running_score}. Risk or bank?").strip().upper()
+                while True:
+                    action = input(f"You roll a {roll} and your running score is now {running_score}. Risk or bank?").strip().upper()
+                    if action not in ["RISK", "BANK"]:
+                        print("Please enter either RISK or BANK")
+                        continue
+                    break
                 if action == "BANK":
                     if turn == 0:
                         p1score += running_score
                         print(f"You banked {running_score}, your score is now {p1score}!")
-
                     else:
                         p2score += running_score
                         print(f"You banked {running_score}, your score is now {p2score}!")
