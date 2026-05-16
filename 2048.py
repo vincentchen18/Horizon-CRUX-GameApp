@@ -2,6 +2,22 @@ import random,copy
 def empty_board():
     return [[0] * 4 for _ in range(4)]
 
+# colour
+tile_colours = {
+    2:    "\033[97m",     # bright white
+    4:    "\033[93m",     # bright yellow
+    8:    "\033[33m",     # yellow
+    16:   "\033[91m",     # bright red
+    32:   "\033[31m",     # red
+    64:   "\033[95m",     # bright magenta
+    128:  "\033[35m",     # magenta
+    256:  "\033[96m",     # bright cyan
+    512:  "\033[36m",     # cyan
+    1024: "\033[92m",     # bright green
+    2048: "\033[32m",     # green
+}
+reset = "\033[0m"
+
 def spawn_tile(board):
     empty_indices = []
     for r in range(4):
@@ -81,7 +97,8 @@ def print_board(board):
             if num == 0:
                 cells.append("    ")
             else:
-                cells.append(f"{num:^4}")
+                colour = tile_colours.get(num, "\033[97m")
+                cells.append(f"{colour}{num:^4}{reset}")
         print("| " + " | ".join(cells) + " |")
     print(horizontal)
     print()
@@ -142,16 +159,17 @@ def play_2048():
                     board, p = slide_down(board)
                 elif move == 'd':
                     board, p = slide_right(board)
+                elif move == 'q':
+                    print(f"Thank you for playing! Final score: {score}")
+                    return
                 if board != before:
                     spawn_tile(board)
                     score += p
                     break
                 else:
                     print("That move didn't change anything, try a different one.")
+                    continue
             print("Please enter a valid move or Q to quit.")
-        if move == 'q':
-            print(f"Thank you for playing! Final score: {score}")
-            return
 
 if __name__ == "__main__":
     play_2048()
