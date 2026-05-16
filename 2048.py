@@ -25,7 +25,7 @@ def slide_row_left(row):
             skip_next = False
             continue
         if i+1 < len(newrow) and newrow[i] == newrow[i+1]:
-            merged.append(newrow[i])
+            merged.append(newrow[i]*2)
             skip_next = True
         else:
             merged.append(newrow[i])
