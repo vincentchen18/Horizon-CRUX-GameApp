@@ -1,4 +1,4 @@
-import random
+import random,copy
 def empty_board():
     return [[0] * 4 for _ in range(4)]
 
@@ -36,14 +36,16 @@ def slide_row_left(row):
     return merged
 
 def slide_left(board):
+    newboard = copy.deepcopy(board)
     for row in range(4):
-        board[row] = slide_row_left(board[row])
-    return board
+        newboard[row] = slide_row_left(newboard[row])
+    return newboard
 
 def slide_right(board):
+    newboard = copy.deepcopy(board)
     for row in range(4):
-        board[row] = slide_row_left(board[row][::-1])[::-1]
-    return board
+        newboard[row] = slide_row_left(newboard[row][::-1])[::-1]
+    return newboard
 
 def transpose_board(board):
     newboard = [[0] * 4 for _ in range(4)]
