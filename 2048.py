@@ -1,6 +1,6 @@
 import random
 def empty_board():
-    return [[0] * 4]*4
+    return [[0] * 4 for _ in range(4)]
 
 def spawn_tile(board):
     empty_indices = []
@@ -43,3 +43,19 @@ def slide_right(board):
         board[row] = slide_row_left(board[row][::-1])[::-1]
     return board
 
+def transpose_board(board):
+    newboard = [[0] * 4 for _ in range(4)]
+    for y in range(4):
+        for x in range(4):
+            newboard[x][y] = board[y][x]
+    return newboard
+
+def slide_up(board):
+    newboard = transpose_board(board)
+    newboard = slide_left(newboard)
+    return transpose_board(newboard)
+
+def slide_down(board):
+    newboard = transpose_board(board)
+    newboard = slide_right(newboard)
+    return transpose_board(newboard)
