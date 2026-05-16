@@ -63,3 +63,39 @@ def slide_down(board):
     newboard = transpose_board(board)
     newboard = slide_right(newboard)
     return transpose_board(newboard)
+
+def print_board(board):
+    horizontal = "+" + "------+" * 4
+    print()
+    for row in board:
+        print(horizontal)
+        cells = []
+        for num in row:
+            if num == 0:
+                cells.append("    ")
+            else:
+                cells.append(f"{num:^4}")
+        print("|" + " | ".join(cells) + "|")
+    print(horizontal)
+    print()
+
+def check_win(board):
+    for row in board:
+        for cell in row:
+            if cell >= 2048:
+                return True
+    return False
+
+def check_loss(board):
+    for row in board:
+        if 0 in row:
+            return False
+    for r in range(4):
+        for c in range(4):
+            if c+1 < 4 and board[r][c] == board[r][c+1]:
+                return False
+            if r+1 < 4 and board[r][c] == board[r+1][c]:
+                return False
+    return True
+
+
