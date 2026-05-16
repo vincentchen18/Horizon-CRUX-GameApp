@@ -32,3 +32,21 @@ def print_board(board):
         for col in range(5):
             cells.append(["○","●"][board[row][col]])
         print(f"{letter}   " + "   ".join(cells))
+
+def check_input(c):
+    s = c.strip().upper()
+    if len(s) != 2:
+        return None
+    if s[0] not in "ABCDE":
+        return None
+    if s[1] not in "12345":
+        return None
+    r = "ABCDE".index(s[0])
+    c = int(s[1]) - 1
+    return (r,c)
+
+def is_solved(board):
+    for row in board:
+        if not all(row):
+            return False
+    return True
