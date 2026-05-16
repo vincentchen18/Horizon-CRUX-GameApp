@@ -4,15 +4,17 @@ def empty_board():
 
 def spawn_tile(board):
     empty_indices = []
-    for y in range(4):
-        for x in range(4):
-            if board[y][x] == 0:
-                empty_indices.append((x, y))
-    spawntile = random.choice(empty_indices)
-    if random.randint(1,10) == 10:
-        board[spawntile[0]][spawntile[1]] = 4
+    for r in range(4):
+        for c in range(4):
+            if board[r][c] == 0:
+                empty_indices.append((r, c))
+    if not empty_indices:
+        return board   # no spawn possible, board full
+    r, c = random.choice(empty_indices)
+    if random.randint(1, 10) == 10:
+        board[r][c] = 4
     else:
-        board[spawntile[0]][spawntile[1]] = 2
+        board[r][c] = 2
     return board
 
 def slide_row_left(row):
