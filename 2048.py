@@ -15,3 +15,31 @@ def spawn_tile(board):
         board[spawntile[0]][spawntile[1]] = 2
     return board
 
+def slide_row_left(row):
+    # remove all 0s then compress
+    newrow = [n for n in row if n != 0]
+    merged = []
+    skip_next = False
+    for i in range(len(newrow)):
+        if skip_next:
+            skip_next = False
+            continue
+        if i+1 < len(newrow) and newrow[i] == newrow[i+1]:
+            merged.append(newrow[i])
+            skip_next = True
+        else:
+            merged.append(newrow[i])
+    while len(merged) < 4:
+        merged.append(0)
+    return merged
+
+def slide_left(board):
+    for row in range(4):
+        board[row] = slide_row_left(board[row])
+    return board
+
+def slide_right(board):
+    for row in range(4):
+        board[row] = slide_row_left(board[row][::-1])[::-1]
+    return board
+
