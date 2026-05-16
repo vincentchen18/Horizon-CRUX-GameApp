@@ -46,7 +46,4 @@ def check_input(c):
     return (r,c)
 
 def is_solved(board):
-    for row in board:
-        if not all(row):
-            return False
-    return True
+    return not any(any(row) for row in board)
