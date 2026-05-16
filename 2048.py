@@ -22,6 +22,7 @@ def slide_row_left(row):
     newrow = [n for n in row if n != 0]
     merged = []
     skip_next = False
+    points = 0
     for i in range(len(newrow)):
         if skip_next:
             skip_next = False
@@ -29,23 +30,29 @@ def slide_row_left(row):
         if i+1 < len(newrow) and newrow[i] == newrow[i+1]:
             merged.append(newrow[i]*2)
             skip_next = True
+            points += newrow[i]*2
         else:
             merged.append(newrow[i])
     while len(merged) < 4:
         merged.append(0)
-    return merged
+    return merged, points
 
 def slide_left(board):
     newboard = copy.deepcopy(board)
+    tp = 0
     for row in range(4):
-        newboard[row] = slide_row_left(newboard[row])
-    return newboard
+        newboard[row], p = slide_row_left(newboard[row])
+        tp += p
+    return newboard, tp
 
 def slide_right(board):
     newboard = copy.deepcopy(board)
+    tp = 0
     for row in range(4):
-        newboard[row] = slide_row_left(newboard[row][::-1])[::-1]
-    return newboard
+        newboard[row], p = slide_row_left(newboard[row][::-1])
+        newboard[row] = newboard[row][::-1]
+        tp += p
+    return newboard, tp
 
 def transpose_board(board):
     newboard = [[0] * 4 for _ in range(4)]
@@ -56,13 +63,13 @@ def transpose_board(board):
 
 def slide_up(board):
     newboard = transpose_board(board)
-    newboard = slide_left(newboard)
-    return transpose_board(newboard)
+    newboard, tp = slide_left(newboard)
+    return transpose_board(newboard), tp
 
 def slide_down(board):
     newboard = transpose_board(board)
-    newboard = slide_right(newboard)
-    return transpose_board(newboard)
+    newboard,tp = slide_right(newboard)
+    return transpose_board(newboard),tp
 
 def print_board(board):
     horizontal = "+" + "------+" * 4
@@ -75,7 +82,7 @@ def print_board(board):
                 cells.append("    ")
             else:
                 cells.append(f"{num:^4}")
-        print("|" + " | ".join(cells) + "|")
+        print("| " + " | ".join(cells) + " |")
     print(horizontal)
     print()
 
@@ -98,4 +105,53 @@ def check_loss(board):
                 return False
     return True
 
+def play_2048():
+    print("=== 2048 ===")
+    while True:
+        c = input("1) Play 2048    2) Exit    Please enter 1 or 2: ").strip()
+        if c == "1":
+            break
+        elif c == "2":
+            return
+        else:
+            print("Please enter 1 or 2.")
+    board = empty_board()
+    board = spawn_tile(board)
+    board = spawn_tile(board)
+    won_announced = False
+    score = 0
+    while True:
+        print_board(board)
+        print(f"Score: {score}")
+        if check_win(board) and not won_announced:
+            print("You won! 🎉 Keep going or Q to exit.")
+            won_announced = True
 
+        if check_loss(board):
+            print(f"Game over! No moves left. Final score: {score}")
+            return
+        while True:
+            move = input("Enter a move (WASD) or Q to quit: ").strip().lower()
+            if move in ['w','a','s','d','q']:
+                before = copy.deepcopy(board)
+                if move == 'w':
+                    board, p = slide_up(board)
+                elif move == 'a':
+                    board, p = slide_left(board)
+                elif move == 's':
+                    board, p = slide_down(board)
+                elif move == 'd':
+                    board, p = slide_right(board)
+                if board != before:
+                    spawn_tile(board)
+                    score += p
+                    break
+                else:
+                    print("That move didn't change anything, try a different one.")
+            print("Please enter a valid move or Q to quit.")
+        if move == 'q':
+            print(f"Thank you for playing! Final score: {score}")
+            return
+
+if __name__ == "__main__":
+    play_2048()
