@@ -120,14 +120,16 @@ def blackjack_play():
         if balance <= 0:
                 print("Oh no, looks like you ran outta money. Game over.")
                 return
-        choice = input("Would you like to play again? (y/n): ").strip().upper()
-        if choice == 'Y':
-            continue
-        elif choice == 'N':
-            print(f"Thank you for playing, you leave with ${balance}.")
-            return
-        else:
-            print("That is not a valid choice. Please enter Y or N.")
+        while True:
+            choice = input("Would you like to play again? (y/n): ").strip().upper()
+            if choice == 'Y':
+                break
+            elif choice == 'N':
+                print(f"Thank you for playing, you leave with ${balance}.")
+                return
+            else:
+                print("That is not a valid choice. Please enter Y or N.")
+                continue
 
 if __name__ == '__main__':
     blackjack_play()
