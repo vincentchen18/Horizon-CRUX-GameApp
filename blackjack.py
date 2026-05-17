@@ -124,7 +124,7 @@ def blackjack_play():
         if choice == 'Y':
             continue
         elif choice == 'N':
-            print(f"Thank you for playing, you leave with ${money}.")
+            print(f"Thank you for playing, you leave with ${balance}.")
             return
         else:
             print("That is not a valid choice. Please enter Y or N.")
