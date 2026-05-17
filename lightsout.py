@@ -47,3 +47,44 @@ def check_input(c):
 
 def is_solved(board):
     return not any(any(row) for row in board)
+
+def lightsout_play():
+    print("=== LIGHTS OUT ===")
+    while True:
+        c = input("1) Play Lights Out    2) Exit    Please Enter 1 or 2: ").strip()
+        if c == "1":
+            break
+        elif c == "2":
+            return
+        else:
+            print("That's not a valid option, please enter 1 or 2.")
+    while True:
+        d = input("1) Easy Mode    2) Medium Mode    3) Hard Mode    Please enter 1, 2 or 3: ").strip()
+        if d in ["1", "2", "3"]:
+            diff = int(d)
+            break
+        print("That's not a valid difficulty. Please enter 1, 2 or 3.")
+    if diff == 1:
+        puzzle = generate_puzzle(random.randint(1,6))
+    elif diff == 2:
+        puzzle = generate_puzzle(random.randint(7,12))
+    else:
+        puzzle = generate_puzzle(random.randint(13, 18))
+    solved = False
+    while not solved:
+        print_board(puzzle)
+        a = input("Enter a coordinate (e.g. A3, B2) to toggle or Q to quit: ").strip().upper()
+        if a == "Q":
+            return
+        g = check_input(a)
+        if g is not None:
+            puzzle = setclick(puzzle, g[0], g[1])
+            if is_solved(puzzle):
+                solved = True
+                print("Congrats, you solved the puzzle! 🎉")
+        else:
+            print("That's not a coordinate or action.")
+    return
+
+if __name__ == "__main__":
+    lightsout_play()
