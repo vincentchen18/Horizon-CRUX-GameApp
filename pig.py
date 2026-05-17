@@ -154,5 +154,5 @@ def pig_play():
                     print(f"You risk {running_score}.")
                     continue
 
-
-pig_play()
+if __name__ == "__main__":
+    pig_play()
