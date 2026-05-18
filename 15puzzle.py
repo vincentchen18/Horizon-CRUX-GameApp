@@ -69,6 +69,7 @@ def puzzle_play():
             print("That's not a valid choice, please enter a number 1-15 or Q to quit.")
         if is_solved(puzzle):
             print("Congrats, you solved the puzzle! 🎉")
+            return
 
 if __name__ == "__main__":
     puzzle_play()
