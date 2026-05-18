@@ -1,14 +1,15 @@
 import copy
+
 def setup():
     board = [[None for _ in range(8)] for __ in range(8)]
     for r in range(3):
         for c in range(8):
             if (r+c)%2 == 1:
-                board[r][c] = "b"
+                board[r][c] = "r"
     for r in range(5, 8):
         for c in range(8):
             if (r+c)%2 == 1:
-                board[r][c] = "w"
+                board[r][c] = "b"
     return board
 
 def color(piece):
@@ -18,16 +19,16 @@ def in_bounds(r,c):
     return 0 <= r <= 7 and 0 <= c <= 7
 
 def directions(piece):
-    if piece == "b":
+    if piece == "r":
         return [(1, -1), (1, 1)]
-    if piece == "w":
+    if piece == "b":
         return [(-1, -1), (-1, 1)]
-    if piece in ["B", "W"]:
+    if piece in ["R", "B"]:
         return [(1, 1), (-1, 1), (1, -1), (-1, -1)]
     return []
 
 def is_promotion_row(r, piece):
-    return (piece == 'b' and r == 7) or (piece == 'w' and r == 0)
+    return (piece == 'r' and r == 7) or (piece == 'b' and r == 0)
 
 def find_jumps(board, r, c, piece=None):
     # return paths
@@ -50,7 +51,7 @@ def find_jumps(board, r, c, piece=None):
         if board[land_r][land_c] is not None: # jump onto occupied square
             continue
 
-        if piece in ['b', 'w'] and is_promotion_row(land_r, land_c): # no more jumps after promotion
+        if piece in ['r', 'b'] and is_promotion_row(land_r, land_c): # no more jumps after promotion
             jumps.append([(r,c), (land_r, land_c)])
 
         # apply jump
