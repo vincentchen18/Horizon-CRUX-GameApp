@@ -138,3 +138,8 @@ def game_over(board, move_player): #move player needs to be b or r
     if len(legal_moves(board, move_player)) == 0:
         return chr(212-ord(move_player.lower()))
     return None
+
+# still need:
+# parse squares: (8 - int(rank), ord(file) - ord('a'))
+# human function
+# bot
