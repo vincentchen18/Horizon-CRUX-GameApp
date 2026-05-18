@@ -78,3 +78,47 @@ def find_moves(board, r, c):
         if in_bounds(new_r, new_c) and board[new_r][new_c] is None:
             moves.append([(r,c), (new_r, new_c)])
     return moves
+
+def legal_moves(board, player): #note: player must be a string "b" or "r"
+    jumps = []
+    # scan all legal moves, if can jump, only return jumps, cos jumps forced :)))
+    for r in range(8):
+        for c in range(8):
+            piece = board[r][c]
+            if piece is not None and color(piece) == player:
+                jumps.extend(find_jumps(board, r, c))
+    if jumps: #force return only the jumps
+        return jumps
+    # if no jumps, scan and return all legal moves
+    moves = []
+    for r in range(8):
+        for c in range(8):
+            piece = board[r][c]
+            if piece is not None and color(piece) == player:
+                moves.extend(find_moves(board, r, c))
+    return moves
+
+
+RED = "\033[31m"
+BLUE = "\033[94m"  # bright blue for 'black' pieces — readable on dark terminals
+BOLD = "\033[1m"
+RESET = "\033[0m"
+
+
+def colorize(piece):
+    if piece is None:
+        return ' '
+    color = RED if piece.lower() == 'r' else BLUE
+    style = BOLD if piece.isupper() else ''  # kings = bold
+    return f"{color}{style}{piece}{RESET}"
+
+
+def print_board(board):
+    print("    " + "   ".join("abcdefgh"))
+    print("  +" + "---+" * 8)
+    for r in range(8):
+        cells = [colorize(board[r][c]) for c in range(8)]
+        print(f"{8 - r} | " + " | ".join(cells) + f" | {8 - r}")
+        print("  +" + "---+" * 8)
+    print("    " + "   ".join("abcdefgh"))
+
