@@ -118,7 +118,22 @@ def print_board(board):
     print("  +" + "---+" * 8)
     for r in range(8):
         cells = [colorize(board[r][c]) for c in range(8)]
-        print(f"{8 - r} | " + " | ".join(cells) + f" | {8 - r}")
+        print(f"{8-r} | " + " | ".join(cells) + f" | {8-r}")
         print("  +" + "---+" * 8)
     print("    " + "   ".join("abcdefgh"))
 
+def apply_move(board, path): #path should be list of coords to move
+    piece = board[path[0][0]][path[0][1]] # the start coords
+    startr, startc = path[0][0], path[0][1]
+    for pr, pc in path[1:]:
+        board[pr][pc], board[startr][startc] = piece, None
+        if abs(startr-pr) == 2: #jump, clear the middle too
+            board[(pr+startr)//2][(pc+startc)//2] = None
+        startr, startc = pr, pc
+    if piece.islower() and is_promotion_row(path[-1][0], piece):
+        board[path[-1][0]][path[-1][1]] = piece.upper()
+
+def is_game_over(board, move_player): #move player needs to be b or r
+    if len(legal_moves(board, move_player)) == 0:
+        return chr(212-ord(move_player.lower()))
+    return None
