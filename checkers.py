@@ -51,11 +51,12 @@ def find_jumps(board, r, c, piece=None):
         if board[land_r][land_c] is not None: # jump onto occupied square
             continue
 
-        if piece in ['r', 'b'] and is_promotion_row(land_r, land_c): # no more jumps after promotion
+        if piece in ['r', 'b'] and is_promotion_row(land_r, piece): # no more jumps after promotion
             jumps.append([(r,c), (land_r, land_c)])
+            continue
 
         # apply jump
-        newboard = copy.deepcopy(board)
+        newboard = [row[:] for row in board]
         newboard[r][c] = None
         newboard[over_r][over_c] = None
         newboard[land_r][land_c] = piece
