@@ -133,7 +133,7 @@ def apply_move(board, path): #path should be list of coords to move
     if piece.islower() and is_promotion_row(path[-1][0], piece):
         board[path[-1][0]][path[-1][1]] = piece.upper()
 
-def is_game_over(board, move_player): #move player needs to be b or r
+def game_over(board, move_player): #move player needs to be b or r
     if len(legal_moves(board, move_player)) == 0:
         return chr(212-ord(move_player.lower()))
     return None
