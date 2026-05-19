@@ -43,7 +43,7 @@ The classic casino gambling card game! Hit and try to get closer to 21 than the 
 
 **9. Checkers**
 
-Another classic on an 8x8 board, move your pieces around, jump over your opponents to capture them, and try to capture all your opponent's pieces to win! Still in progress.
+Another classic on an 8x8 board, move your pieces around, jump over your opponents to capture them, and try to capture all your opponent's pieces to win! You can play in both multiplayer locally or against a bot.
 
 **10. Reversi / Othello**
 
