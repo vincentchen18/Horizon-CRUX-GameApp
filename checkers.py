@@ -1,7 +1,4 @@
-import copy
-
-from networkx.algorithms.approximation.clique import maximum_independent_set
-
+import copy, time
 
 def setup():
     board = [[None for _ in range(8)] for __ in range(8)]
@@ -246,4 +243,56 @@ def bot_move(board, player, depth=5): # default depth to 5
             best_val = val
             best_move = m
     return best_move
+def to_coord(pos):
+    r, c = pos
+    return f"{chr(ord('a')+c)}{8-r}"
 
+def checkers_play():
+    print("=== CHECKERS ===")
+    while True:
+        c = input('1) Play vs Vinniebot    2) Play vs Human    3) Exit    Please enter 1,2 or 3: ').strip()
+        if c == '1':
+            vs_bot = True
+            break
+        elif c == '2':
+            vs_bot = False
+            break
+        elif c == '3':
+            return
+        print("That's not a valid choice, please enter 1,2 or 3.")
+
+    if vs_bot:
+        while True:
+            side = input("Play as Red or Blue? Blue moves first. Enter R or B: ").strip().upper()
+            if side == "B":
+                human_color, bot_color, is_bot_turn = 'b', 'r', False
+                break
+            elif side == "R":
+                human_color, bot_color, is_bot_turn = 'r', 'b', True
+                break
+            print("That's not a valid choice, please enter R or B.")
+    #gameloop
+    board = setup()
+    current = 'b'
+    message = None
+    while True:
+        print_board(board)
+        if message is not None:
+            print(message)
+
+        winner = game_over(board, human_color)
+        if winner is not None:
+            if vs_bot:
+                if winner == human_color:
+                    print("You win! 🎉")
+                else:
+                    print("Vinniebot wins! 🤖")
+            else:
+                name = 'Red' if winner == 'r' else 'Blue'
+                print(f'{name} wins! 🎉')
+            break
+        # no draws in checkers
+        if vs_bot and is_bot_turn:
+            print("Vinniebot is thinking",end="")
+            for i in range(3):
+                time.sleep(0.4)
