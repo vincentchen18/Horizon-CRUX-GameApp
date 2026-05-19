@@ -143,16 +143,28 @@ def game_over(board, move_player): #move player needs to be b or r
 def parse_square(coord): # coord is alphanumeric, such as e4, c5 etc
     return (8-int(coord[1]), ord(coord[0])-ord('a'))
 # parse squares: (8 - int(rank), ord(file) - ord('a'))
-def human_move(board, label, color):
+def human_move(board, label, player):
+    moves = legal_moves(board, player)
     while True:
-        raw = input(f"{label}, please enter your move(s). Start with your starting coordinate, for example, e4 d5 to move from e4 to d5. If you wish to multicapture, enter the coordinates of all the squares in order space separated: ").strip()
+        raw = input(
+            f"{label}, enter your move. "
+            "Use space-separated chess coords, e.g. 'e4 d5' for a slide, "
+            "or 'g3 e5 c7' for a multi-jump: "
+        ).strip().lower()
+        if not raw:
+            print("No input received, try again.")
+            continue
         try:
-            path = [parse_square(square) for square in raw.split()]
-            if path not in legal_moves(board, color):
-                print("That doesn't seem to be a valid path.")
-                continue
-        except Exception:
-            print(f"{label}, please enter a valid coordinate path.")
-
+            path = [parse_square(s) for s in raw.split()]
+        except (ValueError, IndexError):
+            print("Please enter a valid set of coords like 'e4 d5'.")
+            continue
+        if len(path) < 2:
+            print("A move needs at least a start and an end square.")
+            continue
+        if path not in moves:
+            print("That isn't a legal move. Try again.")
+            continue
+        return path
 # human function
 # bot
