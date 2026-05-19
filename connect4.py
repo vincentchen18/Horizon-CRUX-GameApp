@@ -178,6 +178,14 @@ def connect4_play():
                 break
             elif w == human_colour:
                 print("You win! 🎉")
+                time.sleep(1)
+                print('...')
+                time.sleep(1)
+                print('How did you win???')
+                time.sleep(1)
+                print('Are you cheating?')
+                time.sleep(1)
+                print("Ok, you're probably not cheating, good job!!!")
                 break
         else:
             if w == '🔴':

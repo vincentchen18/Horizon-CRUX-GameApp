@@ -154,6 +154,5 @@ def human_move(board, label, color):
         except Exception:
             print(f"{label}, please enter a valid coordinate path.")
 
-
 # human function
 # bot

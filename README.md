@@ -40,3 +40,5 @@ Another sliding squares puzzle, try to correctly arrange all 15 tiles in order!
 **8. Blackjack**
 
 The classic casino gambling card game! Hit and try to get closer to 21 than the dealer without going over! You start with $1000, hopefully you don't run out of money! Side Note: I do not encourage gambling in real life, do it at your own discretion.
+
+**9. Checkers**
