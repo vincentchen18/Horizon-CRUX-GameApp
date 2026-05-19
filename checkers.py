@@ -1,5 +1,8 @@
 import copy
 
+from networkx.algorithms.approximation.clique import maximum_independent_set
+
+
 def setup():
     board = [[None for _ in range(8)] for __ in range(8)]
     for r in range(3):
@@ -190,4 +193,41 @@ def evaluate(board, player): # find the best outcome for player.
                 if (p == 'r' and r == 0) or (p == 'b' and r == 7):
                     score += sign * backrow_value
     return score
+
+def minimax(board, player, depth, alpha, beta, maximising_for):
+    winner = game_over(board, player)
+    if winner is not None:
+        return win_value if winner == maximising_for else -win_value
+    if depth == 0:
+        return evaluate(board, player)
+    moves = legal_moves(board, player)
+    moves.sort(key=len, reverse=True) # use the longest capture sequences first
+    opponent = 'b' if player == 'r' else 'r'
+
+    if player == maximising_for:
+        best = -1*float('inf')
+        for m in moves: #test each moveset
+            newboard = [row[:] for row in board]
+            apply_move(newboard, m)
+            val = minimax(newboard, opponent, depth-1, alpha, beta, maximising_for)
+            if val > best:
+                best = val
+            if best > alpha:
+                alpha = best
+            if beta <= alpha:
+                break
+        return best
+    else:
+        best = float('inf')
+        for m in moves:
+            newboard = [row[:] for row in board]
+            apply_move(newboard, m)
+            val = minimax(newboard, opponent, depth-1, alpha, beta, maximising_for)
+            if val < best:
+                best = val
+            if beta > best:
+                beta = best
+            if beta <= alpha:
+                break
+        return best
 
