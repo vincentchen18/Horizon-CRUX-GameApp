@@ -1,5 +1,8 @@
 import copy, time
 
+from torchvision.prototype.models import depth
+
+
 def setup():
     board = [[None for _ in range(8)] for __ in range(8)]
     for r in range(3):
@@ -296,3 +299,24 @@ def checkers_play():
             print("Vinniebot is thinking",end="")
             for i in range(3):
                 time.sleep(0.4)
+                print(".",end="")
+            time.sleep(0.4)
+            print()
+            move = bot_move(board, bot_color, 5)
+            apply_move(board, move)
+            message = f"Vinniebot plays {' → '.join(to_coord(m) for m in move)}."
+        else:
+            if vs_bot:
+                label = "You"
+            else:
+                label = "Red" if current == 'r' else 'Blue'
+            move = human_move(board, label, current)
+            apply_move(board, move)
+            message = None
+        #change turn
+        current = 'r' if current == 'b' else 'b'
+        if vs_bot:
+            is_bot_turn = not is_bot_turn
+
+if __name__ == '__main__':
+    checkers_play()
