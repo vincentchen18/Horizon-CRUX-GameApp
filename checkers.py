@@ -168,3 +168,26 @@ def human_move(board, label, player):
         return path
 # human function
 # bot
+regular_value = 100
+king_value = 175
+advanced_value = 5
+backrow_value = 20
+win_value = 10000000000000000000
+def evaluate(board, player): # find the best outcome for player.
+    score = 0
+    for r in range(8):
+        for c in range(8):
+            p = board[r][c]
+            if p is None:
+                continue
+            sign = 1 if color(p) == player else -1
+            if p.isupper():
+                score += sign * king_value
+            else:
+                score += sign*regular_value
+                advancement = r if p == 'r' else 7-r
+                score += sign*advanced_value*advancement
+                if (p == 'r' and r == 0) or (p == 'b' and r == 7):
+                    score += sign * backrow_value
+    return score
+
