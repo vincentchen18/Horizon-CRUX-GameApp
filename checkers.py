@@ -274,6 +274,8 @@ def checkers_play():
     #gameloop
     board = setup()
     current = 'b'
+    stale_plies = 0
+    stale_limit = 80 # draws
     message = None
     while True:
         print_board(board)
@@ -290,7 +292,7 @@ def checkers_play():
             else:
                 name = 'Red' if winner == 'r' else 'Blue'
                 print(f'{name} wins! 🎉')
-            break
+            return
         # no draws in checkers
         if vs_bot and is_bot_turn:
             print("Vinniebot is thinking",end="")
@@ -310,6 +312,16 @@ def checkers_play():
             move = human_move(board, label, current)
             apply_move(board, move)
             message = None
+        if len(move) > 2 or abs(move[0][0] - move[1][0]) == 2:
+            stale_plies = 0  # capture
+        elif board[move[-1][0]][move[-1][1]].islower():
+            stale_plies = 0  # nonking move
+        else:
+            stale_plies += 1 #shuffling, add one move
+        if stale_plies >= stale_limit:
+            print_board(board)
+            print("Draw by 40-move rule, no captures or regular moves in 40 turns.")
+            return
         #change turn
         current = 'r' if current == 'b' else 'b'
         if vs_bot:
