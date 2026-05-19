@@ -231,3 +231,19 @@ def minimax(board, player, depth, alpha, beta, maximising_for):
                 break
         return best
 
+def bot_move(board, player, depth=5): # default depth to 5
+    moves = legal_moves(board, player)
+    if not moves:
+        return None
+    moves.sort(key=len, reverse=True)
+    opponent = 'b' if player == 'r' else 'r'
+    best_val = -1 * float('inf')
+    for m in moves:
+        newboard = [row[:] for row in board]
+        apply_move(newboard, m)
+        val = minimax(newboard, opponent, depth-1, -1*float('inf'), float('inf'), player)
+        if val > best_val:
+            best_val = val
+            best_move = m
+    return best_move
+
