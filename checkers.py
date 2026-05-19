@@ -1,8 +1,5 @@
 import copy, time
 
-from torchvision.prototype.models import depth
-
-
 def setup():
     board = [[None for _ in range(8)] for __ in range(8)]
     for r in range(3):
@@ -199,7 +196,7 @@ def minimax(board, player, depth, alpha, beta, maximising_for):
     if winner is not None:
         return win_value if winner == maximising_for else -win_value
     if depth == 0:
-        return evaluate(board, player)
+        return evaluate(board, maximising_for)
     moves = legal_moves(board, player)
     moves.sort(key=len, reverse=True) # use the longest capture sequences first
     opponent = 'b' if player == 'r' else 'r'
@@ -283,7 +280,7 @@ def checkers_play():
         if message is not None:
             print(message)
 
-        winner = game_over(board, human_color)
+        winner = game_over(board, current)
         if winner is not None:
             if vs_bot:
                 if winner == human_color:
