@@ -65,5 +65,21 @@ def to_coord(pos):
     r, c = pos
     return f"{chr(ord('a')+c)}{8-r}"
 
+def parse_square(coord): # coord is alphanumeric, such as e4, c5 etc
+    return (8-int(coord[1]), ord(coord[0])-ord('a'))
+
 def human_move(board, label, player):
     moves = legal_moves(board, player)
+    move_strs = ", ".join(to_coord(m) for m in moves)
+    print(f"{label}, your legal moves are: {move_strs}")
+    while True:
+        raw = input("Enter a square (e.g. d4) to place: ").strip().lower()
+        try:
+            move = parse_square(raw)
+        except Exception:
+            print("That doesn't seem to be a valid move. Please enter a coordinate properly.")
+            continue
+        if move not in moves:
+            print("That's not a legal move! Try again.")
+            continue
+        return move
