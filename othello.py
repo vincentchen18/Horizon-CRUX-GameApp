@@ -83,3 +83,36 @@ def human_move(board, label, player):
             print("That's not a legal move! Try again.")
             continue
         return move
+
+#bot
+corner = 100
+corner_diag = -40
+adj_corner = -20
+edge = 10
+piece = 1
+mobility = 5
+
+position_weights = [
+    [100, -20, 10, 5, 5, 10, -20, 100],
+    [-20, -40, -5, -5, -5, -5, -40, -20],
+    [10, -5, 1, 1, 1, 1, -5, 10],
+    [5, -5, 1, 1, 1, 1, -5, 5],
+    [5, -5, 1, 1, 1, 1, -5, 5],
+    [10, -5, 1, 1, 1, 1, -5, 10],
+    [-20, -40, -5, -5, -5, -5, -40, -20],
+    [100, -20, 10, 5, 5, 10, -20, 100]
+]
+
+def evaluate(board, maximising_for):
+    score = 0
+    opponent = 'W' if maximising_for == 'B' else 'B'
+    for r in range(8):
+        for c in range(8):
+            p = board[r][c]
+            if p is None:
+                continue
+            sign = 1 if p == maximising_for else -1
+            score += sign*position_weights[r][c]
+    score += mobility * (len(legal_moves(board, maximising_for)) - len(legal_moves(board, opponent)))
+    return score
+
