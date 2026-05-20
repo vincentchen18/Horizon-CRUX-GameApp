@@ -1,0 +1,42 @@
+symbols = {'B': '●', 'W': '○', None: ' '}
+def setup():
+    newboard = [[None for _ in range(8)] for __ in range(8)]
+    # put 2 piece of each color in the middle.
+    newboard[3][3] = "W"
+    newboard[3][4] = "B"
+    newboard[4][4] = "W"
+    newboard[4][3] = "B"
+    return newboard
+
+dirs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+def in_bounds(r, c):
+    return 0 <= r < 8 and 0 <= c < 8
+
+def flips_in_direction(board, r, c, dr, dc, player): #check how many flips if we place a counter in direction dr, dc
+    opponent = 'W' if player == 'B' else 'B'
+    captures = []
+    newr, newc = r+dr, c+dc
+    if in_bounds(newr, newc) and board[newr][newc] == opponent:
+        captures.append((newr, newc))
+        newr += dr
+        newc += dc
+    if in_bounds(newr, newc) and board[newr][newc] == player and captures:
+        return captures
+    return []
+
+def all_possible_flips(board, r, c, player): # calculate all captures if we place a piece at (r, c).
+    if board[r][c] is not None: # cell occupied :((
+        return []
+    flips = []
+    for dr, dc in dirs:
+        flips.extend(flips_in_direction(board, r, c, dr, dc, player))
+    return flips
+
+def legal_moves(board, player):
+    moves = []
+    for r in range(8):
+        for c in range(8):
+            if board[r][c] is None and all_possible_flips(board, r, c, player):
+                moves.append((r, c))
+    return moves
