@@ -60,3 +60,10 @@ def game_over(board): # if no move, pass, if both side no move, game over
             return "W" #white win
         return "D" #draw
     return None # game not over
+
+def to_coord(pos):
+    r, c = pos
+    return f"{chr(ord('a')+c)}{8-r}"
+
+def human_move(board, label, player):
+    moves = legal_moves(board, player)
