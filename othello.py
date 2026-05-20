@@ -49,3 +49,14 @@ def apply_move(board, move, player): # move is tuple, player is B or W
     board[r][c] = player
     for fr, fc in flips:
         board[fr][c] = player
+
+def game_over(board): # if no move, pass, if both side no move, game over
+    if not legal_moves(board, 'B') and not legal_moves(board, 'W'):
+        b_count = sum([row.count('B') for row in board])
+        w_count = sum([row.count('W') for row in board])
+        if b_count > w_count:
+            return "B" #black win
+        elif w_count > b_count:
+            return "W" #white win
+        return "D" #draw
+    return None # game not over
