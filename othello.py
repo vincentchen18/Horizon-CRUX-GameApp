@@ -40,3 +40,12 @@ def legal_moves(board, player):
             if board[r][c] is None and all_possible_flips(board, r, c, player):
                 moves.append((r, c))
     return moves
+
+# actual movement
+
+def apply_move(board, move, player): # move is tuple, player is B or W
+    r,c = move
+    flips = all_possible_flips(board, r, c, player)
+    board[r][c] = player
+    for fr, fc in flips:
+        board[fr][c] = player
