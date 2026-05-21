@@ -128,9 +128,9 @@ def minimax(board, player, depth, alpha, beta, maximising_for):
     if depth == 0:
         return evaluate(board, maximising_for)
     moves = legal_moves(board, player)
-    opponent = 'W' if maximising_for == 'B' else 'B'
+    opponent = 'W' if player == 'B' else 'B'
     if not moves:
-        return minimax(board, player, depth, alpha, beta, maximising_for)
+        return minimax(board, opponent, depth, alpha, beta, maximising_for)
 
     moves.sort(key=lambda m: position_weights[m[0]][m[1]], reverse=True)
 
