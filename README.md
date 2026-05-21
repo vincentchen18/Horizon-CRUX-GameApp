@@ -1,5 +1,8 @@
 # Console Gamer v1.0 :))))
 
+## Overview:
+My Console Gamer Project is a runnable no-internet application that runs in the terminal/console, and you can play a variety of different games on it. Have fun! :)))
+
 ## Usage:
 To use this project, type the following commands into your terminal.
 
@@ -55,6 +58,8 @@ Everyone has played this game. But have you played it against a bot that learns 
 
 **12. Poker**
 
-A card game of skill, luck, and psychology, bet money based on cards or bluff. 
+A card game of skill, luck, and psychology, bet money based on cards or bluff. Everyone is dealt 2 cards, with the community cards getting revealed every round of bet. Try not to run out of money!
 
 Royal Flush > Straight Flush > Four of a Kind > Full House > Flush > Straight > 3 of a Kind > Two Pair > One pair > High Card.
+Side Note: I do not endorse or encourage gambling.
+
