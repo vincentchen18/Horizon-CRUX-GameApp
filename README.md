@@ -47,6 +47,14 @@ Another classic on an 8x8 board, move your pieces around, jump over your opponen
 
 **10. Reversi / Othello**
 
-In this game, place your pieces to convert all surrounded opponent pieces to yours! Finish with the most amount of pieces on the board to win! Still in progress.
+In this game, place your pieces to convert all surrounded opponent pieces to yours! Finish with the most amount of pieces on the board to win! Play against bot or local multiplayer.
 
-**11. **
+**11. Rock Paper Scissors**
+
+Everyone has played this game. But have you played it against a bot that learns from your past moves?
+
+**12. Poker**
+
+A card game of skill, luck, and psychology, bet money based on cards or bluff. 
+
+Royal Flush > Straight Flush > Four of a Kind > Full House > Flush > Straight > 3 of a Kind > Two Pair > One pair > High Card.
