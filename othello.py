@@ -157,6 +157,22 @@ def minimax(board, player, depth, alpha, beta, maximising_for):
                 break
         return best
 
+def bot_move(board, player, depth):
+    moves = legal_moves(board, player)
+    if not moves:
+        return None
+    moves.sort(key=lambda m: position_weights[m[0]][m[1]], reverse=True)
+    opponent = "W" if player == 'B' else 'B'
+    best_val = -1*float('inf')
+    best_move = moves[0]
+    for move in moves:
+        newboard = [row[:] for row in board]
+        apply_move(newboard, move, player)
+        val = minimax(newboard, opponent, depth-1, -1*float('inf'), float('inf'), player)
+        if val > best_val:
+            best_val = val
+            best_move = move
+    return best_move
 
 def print_board(board):
     print("    " + "   ".join("abcdefgh"))
