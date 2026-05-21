@@ -17,7 +17,7 @@ def flips_in_direction(board, r, c, dr, dc, player): #check how many flips if we
     opponent = 'W' if player == 'B' else 'B'
     captures = []
     newr, newc = r+dr, c+dc
-    if in_bounds(newr, newc) and board[newr][newc] == opponent:
+    while in_bounds(newr, newc) and board[newr][newc] == opponent:
         captures.append((newr, newc))
         newr += dr
         newc += dc
@@ -48,7 +48,7 @@ def apply_move(board, move, player): # move is tuple, player is B or W
     flips = all_possible_flips(board, r, c, player)
     board[r][c] = player
     for fr, fc in flips:
-        board[fr][c] = player
+        board[fr][fc] = player
 
 def game_over(board): # if no move, pass, if both side no move, game over
     if not legal_moves(board, 'B') and not legal_moves(board, 'W'):
