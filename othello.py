@@ -203,10 +203,12 @@ def othello_play():
                 human_colour = "B"
                 bot_colour = "W"
                 is_bot_turn = False
+                break
             elif raw == "W":
                 human_colour = "W"
                 bot_colour = "B"
                 is_bot_turn = True
+                break
             else:
                 print("That's not a valid choice, please enter B/W.")
     board = setup()
