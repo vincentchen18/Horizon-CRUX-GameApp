@@ -116,3 +116,12 @@ def evaluate(board, maximising_for):
     score += mobility * (len(legal_moves(board, maximising_for)) - len(legal_moves(board, opponent)))
     return score
 
+def print_board(board):
+    print("    " + "   ".join("abcdefgh"))
+    print("  +" + "---+" * 8)
+    for r in range(8):
+        cells = [symbols[i] for i in board[r]]
+        print(f"{8 - r} | " + " | ".join(cells) + f" | {8 - r}")
+        print("  +" + "---+" * 8)
+    print("    " + "   ".join("abcdefgh"))
+
