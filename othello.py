@@ -1,4 +1,5 @@
 symbols = {'B': '●', 'W': '○', None: ' '}
+import time
 def setup():
     newboard = [[None for _ in range(8)] for __ in range(8)]
     # put 2 piece of each color in the middle.
@@ -183,3 +184,87 @@ def print_board(board):
         print("  +" + "---+" * 8)
     print("    " + "   ".join("abcdefgh"))
 
+def othello_play():
+    print("=== OTHELLO / REVERSI ===")
+    while True:
+        c = input("1) Play vs bot    2) Play vs Human    3) Exit    Please enter 1, 2 or 3: ").strip()
+        if c == "1":
+            vs_bot = True
+            break
+        elif c == "2":
+            vs_bot = False
+            break
+        else:
+            print("That's not a valid choice, please enter 1, 2 or 3.")
+    if vs_bot:
+        while True:
+            raw = input("Play as Black or White? Black moves first. Enter B/W: ").strip().upper()
+            if raw == "B":
+                human_colour = "B"
+                bot_colour = "W"
+                is_bot_turn = False
+            elif raw == "W":
+                human_colour = "W"
+                bot_colour = "B"
+                is_bot_turn = True
+            else:
+                print("That's not a valid choice, please enter B/W.")
+    board = setup()
+    current = 'B'
+    message = None
+    while True:
+        winner = game_over(board)
+        if winner is not None:
+            print_board(board)
+            b_count, w_count = sum([row.count("B") for row in board]), sum([row.count("W") for row in board])
+            print(f"Final scores, Black: {b_count}, White: {w_count}")
+            if vs_bot:
+                if winner == "D":
+                    print("It's a draw!")
+                elif winner == bot_colour:
+                    print("Vinniebot wins! 🤖")
+                elif winner == human_colour:
+                    print("You win! 🎉")
+            else:
+                if winner == "D":
+                    print("It's a draw!")
+                else:
+                    label = "Black" if winner == "B" else "White"
+                    print(f"{label} wins!")
+            return
+        moves = legal_moves(board, current)
+        if not moves:
+            label = "Black" if winner == "B" else "White"
+            print_board(board)
+            print(f"{label} has no legal moves and must pass.")
+            current = "W" if current == "B" else "B"
+            if vs_bot:
+                is_bot_turn = not is_bot_turn
+            continue
+        if vs_bot and is_bot_turn:
+            print_board(board)
+            if message is not None:
+                print(message)
+            print("Vinniebot is thinking", end="")
+            for i in range(3):
+                time.sleep(0.4)
+                print(".", end="")
+            time.sleep(0.4)
+            print()
+            move = bot_move(board, current, 5)
+            apply_move(board, move, current)
+            message = f"Vinniebot plays {to_coord(move)}"
+        else:
+            print_board(board)
+            if message is not None:
+                print(message)
+            label = "You" if vs_bot else "Black" if current == "B" else "White"
+            move = human_move(board, label, current)
+            apply_move(board, move, current)
+            message = None
+        current = "W" if current == "B" else "B"
+        if vs_bot:
+            is_bot_turn = not is_bot_turn
+
+if __name__ == "__main__":
+    othello_play()
