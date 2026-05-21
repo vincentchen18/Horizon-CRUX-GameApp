@@ -255,7 +255,7 @@ def othello_play():
             print()
             move = bot_move(board, current, 5)
             apply_move(board, move, current)
-            message = f"Vinniebot plays {to_coord(move)}"
+            message = f"Vinniebot plays {to_coord(move)}."
         else:
             print_board(board)
             if message is not None:
