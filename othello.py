@@ -116,6 +116,48 @@ def evaluate(board, maximising_for):
     score += mobility * (len(legal_moves(board, maximising_for)) - len(legal_moves(board, opponent)))
     return score
 
+def minimax(board, player, depth, alpha, beta, maximising_for):
+    winner = game_over(board)
+    if winner is not None:
+        if winner == maximising_for:
+            return float('inf')
+        elif winner == "D":
+            return 0
+        else:
+            return -1*float('inf')
+    if depth == 0:
+        return evaluate(board, maximising_for)
+    moves = legal_moves(board, player)
+    opponent = 'W' if maximising_for == 'B' else 'B'
+    if not moves:
+        return minimax(board, player, depth, alpha, beta, maximising_for)
+
+    moves.sort(key=lambda m: position_weights[m[0]][m[1]], reverse=True)
+
+    if player == maximising_for:
+        best = -1*float('inf')
+        for move in moves:
+            newboard = [row[:] for row in board]
+            apply_move(newboard, move, player)
+            val = minimax(newboard, opponent, depth-1, alpha, beta, maximising_for)
+            best = max(best, val)
+            alpha = max(alpha, best)
+            if alpha >= beta:
+                break
+        return best
+    else:
+        best = float('inf')
+        for move in moves:
+            newboard = [row[:] for row in board]
+            apply_move(newboard, move, player)
+            val = minimax(newboard, opponent, depth-1, alpha, beta, maximising_for)
+            best = min(best, val)
+            beta = min(beta, best)
+            if alpha >= beta:
+                break
+        return best
+
+
 def print_board(board):
     print("    " + "   ".join("abcdefgh"))
     print("  +" + "---+" * 8)
