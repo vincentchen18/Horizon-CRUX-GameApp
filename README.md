@@ -52,9 +52,9 @@ Another classic on an 8x8 board, move your pieces around, jump over your opponen
 
 In this game, place your pieces to convert all surrounded opponent pieces to yours! Finish with the most amount of pieces on the board to win! Play against bot or local multiplayer.
 
-**11. Rock Paper Scissors**
+**11. 24 Puzzle**
 
-Everyone has played this game. But have you played it against a bot that learns from your past moves?
+I'll give you 4 numbers. Can you find a way using math operations to turn them into 24?
 
 **12. Poker**
 
