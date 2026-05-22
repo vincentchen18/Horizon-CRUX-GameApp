@@ -74,7 +74,9 @@ def human_move(board, label, player):
     move_strs = ", ".join(to_coord(m) for m in moves)
     print(f"{label}, your legal moves are: {move_strs}")
     while True:
-        raw = input("Enter a square (e.g. d4) to place: ").strip().lower()
+        raw = input("Enter a square (e.g. d4) to place or Q to quit: ").strip().lower()
+        if raw == "q":
+            return
         try:
             move = parse_square(raw)
         except Exception:
