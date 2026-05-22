@@ -1,4 +1,4 @@
-import tictactoe, puzzle15, pig, nim, lightsout, game2048, connect4, checkers, blackjack, othello
+import tictactoe, puzzle15, pig, nim, lightsout, game2048, connect4, checkers, blackjack, othello, puzzle24
 
 print("Welcome to my Console Gamer!")
 def menu():
@@ -47,7 +47,7 @@ def main():
             elif choice == 10:
                 othello.othello_play()
             elif choice == 11:
-                print("This game is still being built!")
+                puzzle24.puzzle24_play()
             elif choice == 12:
                 print("This game is still being built!")
 
