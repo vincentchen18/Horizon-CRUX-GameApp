@@ -7,3 +7,11 @@ def poker_shuffle():
     deck = [nums[i] + suits[j] for i in range(13) for j in range(4)]
     random.shuffle(deck)
     return deck
+
+def deal(cards):
+    p1 = [cards.pop(), cards.pop()]
+    p2 = [cards.pop(), cards.pop()]
+    p3 = [cards.pop(), cards.pop()]
+    p4 = [cards.pop(), cards.pop()]
+    p5 = [cards.pop(), cards.pop()]
+    return p1, p2, p3, p4, p5
