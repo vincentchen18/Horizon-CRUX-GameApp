@@ -187,7 +187,7 @@ def print_board(board):
 def othello_play():
     print("=== OTHELLO / REVERSI ===")
     while True:
-        c = input("1) Play vs bot    2) Play vs Human    3) Exit    Please enter 1, 2 or 3: ").strip()
+        c = input("1) Play vs Vinniebot    2) Play vs Human    3) Exit    Please enter 1, 2 or 3: ").strip()
         if c == "1":
             vs_bot = True
             break
