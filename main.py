@@ -51,6 +51,6 @@ def main():
             elif choice == 12:
                 print("This game is still being built!")
 
-        except Exception:
+        except ValueError:
             print("That's not a valid input. Please enter a number from 1 - 12.")
 main()

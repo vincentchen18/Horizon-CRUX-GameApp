@@ -76,7 +76,7 @@ def human_move(board, label, player):
     while True:
         raw = input("Enter a square (e.g. d4) to place or Q to quit: ").strip().lower()
         if raw == "q":
-            return
+            return (None, None)
         try:
             move = parse_square(raw)
         except Exception:
@@ -264,6 +264,8 @@ def othello_play():
                 print(message)
             label = "You" if vs_bot else "Black" if current == "B" else "White"
             move = human_move(board, label, current)
+            if move == (None, None):
+                return
             apply_move(board, move, current)
             message = None
         current = "W" if current == "B" else "B"
