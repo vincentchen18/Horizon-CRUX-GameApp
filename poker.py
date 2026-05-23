@@ -15,3 +15,9 @@ def deal(cards):
     p4 = [cards.pop(), cards.pop()]
     p5 = [cards.pop(), cards.pop()]
     return p1, p2, p3, p4, p5
+
+def ranks(cards):
+    newcards = []
+    for card in cards:
+        newcards.append(cardmapper[card[:-1]])
+    return newcards
