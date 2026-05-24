@@ -24,8 +24,8 @@ def ranks(cards):
     return newcards
 
 def is_flush(cards):
-    suits = [card[-1] for card in cards]
-    if suits[0] == suits[1] == suits[2] == suits[3] == suits[4]:
+    cardsuits = [card[-1] for card in cards]
+    if cardsuits[0] == cardsuits[1] == cardsuits[2] == cardsuits[3] == cardsuits[4]:
         return True
     return False
 
@@ -41,15 +41,15 @@ def is_four_of_a_kind(ranks):
     newranks = sorted(ranks)
     counts = Counter(newranks)
     if max(counts.values()) == 4:
-        return True
-    return False
+        return True, [k for k in counts.keys() if counts[k] == 4][0]
+    return False, None
 
 def is_full_house(ranks):
     newranks = sorted(ranks)
     counts = Counter(newranks)
     if len(counts.values()) == 2 and max(counts.values()) == 3 and min(counts.values()) == 2:
-        return True
-    return False
+        return [k for k in counts.keys() if counts[k] == 3][0], [k for k in counts.keys() if counts[k] == 2][0]
+    return False, None, None
 
 def is_three_of_a_kind(ranks):
     newranks = sorted(ranks)
@@ -71,3 +71,19 @@ def is_one_pair(ranks):
     if max(counts.values()) == 2:
         return True
     return False
+
+def check_set(cards):
+    r = ranks(cards)
+    #check in order: straight flush -> four of a kind -> full house -> flush -> straight -> 3 of a kind -> 2 pair -> 1 pair -> high
+    if is_flush(cards) and is_straight(r):
+        if sorted(r) == [2,3,4,5,14]:
+            return [10, 5]
+        else:
+            return [10, max(r)]
+    elif is_four_of_a_kind(r)[0]:
+        yes, four = is_four_of_a_kind(r)
+        return [9, four, set(r)-{four}]
+    elif is_full_house(r)[0]:
+        yes, triple, double = is_full_house(r)
+        return [8, triple, double]
+    return
