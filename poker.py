@@ -21,3 +21,11 @@ def ranks(cards):
     for card in cards:
         newcards.append(cardmapper[card[:-1]])
     return newcards
+
+def is_flush(cards):
+    suits = [card[-1] for card in cards]
+    if suits[0] == suits[1] == suits[2] == suits[3] == suits[4]:
+        return True
+    return False
+
+def is_straight(cards):
