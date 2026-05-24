@@ -34,7 +34,7 @@ def is_straight(ranks):
     if newranks[0]+4 == newranks[1]+3 == newranks[2]+2 == newranks[3]+1 == newranks[4]:
         return True
     if newranks == [2,3,4,5,14]:
-        return True, 5
+        return True
     return False
 
 def is_four_of_a_kind(ranks):
