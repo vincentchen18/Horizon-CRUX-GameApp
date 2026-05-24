@@ -29,3 +29,4 @@ def is_flush(cards):
     return False
 
 def is_straight(cards):
+    editing...
