@@ -83,7 +83,7 @@ def check_set(cards):
             return [10, max(r)]
     elif is_four_of_a_kind(r)[0]:
         yes, four = is_four_of_a_kind(r)
-        return [9, four, set(r)-{four}]
+        return [9, four, list(set(r)-{four})[0]]
     elif is_full_house(r)[0]:
         yes, triple, double = is_full_house(r)
         return [8, triple, double]
