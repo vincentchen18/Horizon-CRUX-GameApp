@@ -49,7 +49,7 @@ def is_full_house(ranks):
     newranks = sorted(ranks)
     counts = Counter(newranks)
     if len(counts.values()) == 2 and max(counts.values()) == 3 and min(counts.values()) == 2:
-        return [k for k in counts.keys() if counts[k] == 3][0], [k for k in counts.keys() if counts[k] == 2][0]
+        return True, [k for k in counts.keys() if counts[k] == 3][0], [k for k in counts.keys() if counts[k] == 2][0]
     return False, None, None
 
 def is_three_of_a_kind(ranks):
@@ -128,6 +128,3 @@ def showdown(h1, h2, h3, h4, h5):
             distribution[i] = round(1/split, 2)
     return distribution
 
-p1,p2,p3,p4,p5,river = deal(poker_shuffle())
-print(river,p1)
-print(best_hand(river + p1))
