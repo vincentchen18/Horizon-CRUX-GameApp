@@ -3,6 +3,7 @@ nums = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
 cardmapper = {'A':14, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8,"9":9,"10":10, "J":11,"Q":12,"K":13}
 import random, time, itertools
 from collections import Counter
+hands = {10:"Straight Flush", 9:'Four of a Kind', 8: "Full House", 7: "Flush", 6: "Straight", 5: "Three of a Kind", 4: "Two Pair", 3: "Pair", 2:"High Card",}
 
 def poker_shuffle():
     deck = [nums[i] + suits[j] for i in range(13) for j in range(4)]
@@ -119,10 +120,10 @@ def best_hand(cards_7):
             best = ev
     return best
 
-def showdown(h1, h2, h3, h4, h5):
-    winner = max(h1, h2, h3, h4, h5)
-    distribution = [0,0,0,0,0]
-    win = [hand == winner for hand in [h1, h2, h3, h4, h5]]
+def showdown(list_of_hands):
+    winner = max(list_of_hands)
+    distribution = [0 for i in range(len(list_of_hands))]
+    win = [hand == winner for hand in list_of_hands]
     split = win.count(True)
     for i in range(5):
         if win[i]:
@@ -133,10 +134,15 @@ def print_board(action1, action2, action3, action4, action5, b1, b2, b3, b4, b5)
     pass
 
 def reset_for_new_hand(state):
-    # wipe everyting
-    pass
-
-
+    #
+    for x in range(5):
+        state['players'][x]['hole_cards'] = []
+        state['players'][x]['current_bet'] = 0
+        state['players'][x]['total_committed'] = 0
+        state['players'][x]['has_folded'] = False
+        state['players'][x]['is_all_in'] = False
+        state['players'][x]['last_action'] = ""
+    return state
 
 def poker_play(): #hardcode player to p3
     while True:
@@ -160,7 +166,7 @@ def poker_play(): #hardcode player to p3
                 "last_action": "",
             },
             {
-                "name": "Justin",
+                "name": "Shawn",
                 "balance": 1000,
                 "hole_cards": [],
                 "current_bet": 0,
@@ -182,7 +188,7 @@ def poker_play(): #hardcode player to p3
                 "last_action": "",
             },
             {
-                "name": "Shawn",
+                "name": "Roy",
                 "balance": 1000,
                 "hole_cards": [],
                 "current_bet": 0,
@@ -220,5 +226,11 @@ def poker_play(): #hardcode player to p3
 
 #test
 p1,p2,p3,p4,p5,river = deal(poker_shuffle())
-print(river,p1)
-print(best_hand(river + p1))
+construct = [best_hand(p1+river), best_hand(p2+river), best_hand(p3+river), best_hand(p4+river), best_hand(p5+river)]
+print(river)
+print(p1, hands[construct[0][0]])
+print(p2, hands[construct[1][0]])
+print(p3, hands[construct[2][0]])
+print(p4, hands[construct[3][0]])
+print(p5, hands[construct[4][0]])
+print(showdown(construct))
