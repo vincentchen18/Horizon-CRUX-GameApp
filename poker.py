@@ -114,8 +114,9 @@ def best_hand(cards_7):
     combos = itertools.combinations(cards_7, 5)
     best = [0,0,0]
     for combo in combos:
-        if check_set(combo) > best:
-            best = check_set(combo)
+        ev = check_set(combo)
+        if ev > best:
+            best = ev
     return best
 
 def showdown(h1, h2, h3, h4, h5):
