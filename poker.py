@@ -128,3 +128,18 @@ def showdown(h1, h2, h3, h4, h5):
             distribution[i] = round(1/split, 2)
     return distribution
 
+def print_board(action1, action2, action3, action4, action5, b1, b2, b3, b4, b5): # -> actions: CALL, FOLD, ALL IN, etc
+    pass
+
+def poker_play(): #hardcode player to p3
+    while True:
+        c = input("1) Play Poker    2) Exit    Please enter 1 or 2: ")
+        if c == "1":
+            break
+        elif c == "2":
+            return
+        print("That's not a valid choice, please enter 1 or 2.")
+
+p1,p2,p3,p4,p5,river = deal(poker_shuffle())
+print(river,p1)
+print(best_hand(river + p1))
