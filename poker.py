@@ -1,7 +1,7 @@
 suits = "♥♦♣♠"
 nums = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
 cardmapper = {'A':14, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8,"9":9,"10":10, "J":11,"Q":12,"K":13}
-import random, time
+import random, time, itertools
 from collections import Counter
 
 def poker_shuffle():
@@ -70,12 +70,11 @@ def is_one_pair(ranks):
     newranks = sorted(ranks)
     counts = Counter(newranks)
     if max(counts.values()) == 2:
-        return True
-    return False
+        return True, [k for k in counts.keys() if counts[k] == 2][0], [k for k in counts.keys() if counts[k] == 1]
+    return False, None, None
 
 def check_set(cards):
     r = ranks(cards)
-    print(r)
     #check in order: straight flush -> four of a kind -> full house -> flush -> straight -> 3 of a kind -> 2 pair -> 1 pair -> high
     if is_flush(cards) and is_straight(r)[0]:
         if sorted(r) == [2,3,4,5,14]:
@@ -98,9 +97,30 @@ def check_set(cards):
         yes, triple = is_three_of_a_kind(r)
         kickers = sorted([n for n in r if n != triple], reverse=True)
         return [5, triple, kickers[0], kickers[1]]
+    elif is_two_pair(r)[0]:
+        yes, twos, kicker = is_two_pair(r)
+        return [4, max(twos), min(twos), kicker]
+    elif is_one_pair(r)[0]:
+        yes, pair, kickers = is_one_pair(r)
+        kickers.sort(reverse=True)
+        return [3, pair, kickers[0], kickers[1], kickers[2]]
+    else:
+        # HIGH CARD LOOOL
+        returnee = [2]
+        returnee.extend(sorted(r, reverse=True))
+        return returnee
 
-    return
+def best_hand(cards_7):
+    combos = itertools.combinations(cards_7, 5)
+    best = [0,0,0]
+    for combo in combos:
+        if check_set(combo) > best:
+            best = check_set(combo)
+    return best
+
+def showdown(h1, h2, h3, h4, h5):
+    winner = max(h1, h2, h3, h4, h5)
 
 p1,p2,p3,p4,p5,river = deal(poker_shuffle())
-c = ["6♥", "2♥", "3♥", "4♥", "5♥"]
-print(check_set(c))
+print(river,p1)
+print(best_hand(river + p1))
