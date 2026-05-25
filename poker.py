@@ -15,7 +15,8 @@ def deal(cards):
     p3 = [cards.pop(), cards.pop()]
     p4 = [cards.pop(), cards.pop()]
     p5 = [cards.pop(), cards.pop()]
-    return p1, p2, p3, p4, p5
+    river = [cards.pop(), cards.pop(),cards.pop(),cards.pop(),cards.pop()]
+    return p1, p2, p3, p4, p5, river
 
 def ranks(cards):
     newcards = []
@@ -32,10 +33,10 @@ def is_flush(cards):
 def is_straight(ranks):
     newranks = sorted(ranks)
     if newranks[0]+4 == newranks[1]+3 == newranks[2]+2 == newranks[3]+1 == newranks[4]:
-        return True
+        return True, newranks[4]
     if newranks == [2,3,4,5,14]:
-        return True
-    return False
+        return True, 5
+    return False, None
 
 def is_four_of_a_kind(ranks):
     newranks = sorted(ranks)
@@ -55,15 +56,15 @@ def is_three_of_a_kind(ranks):
     newranks = sorted(ranks)
     counts = Counter(newranks)
     if max(counts.values()) == 3:
-        return True
-    return False
+        return True, [k for k in counts.keys() if counts[k] == 3][0]
+    return False, None
 
 def is_two_pair(ranks):
     newranks = sorted(ranks)
     counts = Counter(newranks)
     if max(counts.values()) == 2 and list(counts.values()).count(2) == 2:
-        return True
-    return False
+        return True, [k for k in counts.keys() if counts[k] == 2], [k for k in counts.keys() if counts[k] == 1][0]
+    return False, None, None
 
 def is_one_pair(ranks):
     newranks = sorted(ranks)
@@ -74,8 +75,9 @@ def is_one_pair(ranks):
 
 def check_set(cards):
     r = ranks(cards)
+    print(r)
     #check in order: straight flush -> four of a kind -> full house -> flush -> straight -> 3 of a kind -> 2 pair -> 1 pair -> high
-    if is_flush(cards) and is_straight(r):
+    if is_flush(cards) and is_straight(r)[0]:
         if sorted(r) == [2,3,4,5,14]:
             return [10, 5]
         else:
@@ -86,4 +88,19 @@ def check_set(cards):
     elif is_full_house(r)[0]:
         yes, triple, double = is_full_house(r)
         return [8, triple, double]
+    elif is_flush(cards):
+        sr = sorted(r)
+        return [7, sr[-1],sr[-2],sr[-3],sr[-4],sr[-5]]
+    elif is_straight(r)[0]:
+        yes, big = is_straight(r)
+        return [6, big]
+    elif is_three_of_a_kind(r)[0]:
+        yes, triple = is_three_of_a_kind(r)
+        kickers = sorted([n for n in r if n != triple], reverse=True)
+        return [5, triple, kickers[0], kickers[1]]
+
     return
+
+p1,p2,p3,p4,p5,river = deal(poker_shuffle())
+c = ["6♥", "2♥", "3♥", "4♥", "5♥"]
+print(check_set(c))
