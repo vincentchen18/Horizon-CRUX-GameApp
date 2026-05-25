@@ -132,6 +132,10 @@ def showdown(h1, h2, h3, h4, h5):
 def print_board(action1, action2, action3, action4, action5, b1, b2, b3, b4, b5): # -> actions: CALL, FOLD, ALL IN, etc
     pass
 
+
+
+
+
 def poker_play(): #hardcode player to p3
     while True:
         c = input("1) Play Poker    2) Exit    Please enter 1 or 2: ")
@@ -140,7 +144,76 @@ def poker_play(): #hardcode player to p3
         elif c == "2":
             return
         print("That's not a valid choice, please enter 1 or 2.")
-
+    state = {
+        "players": [
+            {
+                "name": "Vinnie",
+                "balance": 1000,
+                "hole_cards": [],
+                "current_bet": 0,
+                "total_committed": 0,
+                "has_folded": False,
+                "is_all_in": False,
+                "is_human": False,
+                "last_action": "",
+            },
+            {
+                "name": "Justin",
+                "balance": 1000,
+                "hole_cards": [],
+                "current_bet": 0,
+                "total_committed": 0,
+                "has_folded": False,
+                "is_all_in": False,
+                "is_human": False,
+                "last_action": "",
+            },
+            {
+                "name": "You",
+                "balance": 1000,
+                "hole_cards": [],
+                "current_bet": 0,
+                "total_committed": 0,
+                "has_folded": False,
+                "is_all_in": False,
+                "is_human": True,
+                "last_action": "",
+            },
+            {
+                "name": "Shawn",
+                "balance": 1000,
+                "hole_cards": [],
+                "current_bet": 0,
+                "total_committed": 0,
+                "has_folded": False,
+                "is_all_in": False,
+                "is_human": False,
+                "last_action": "",
+            },
+            {
+                "name": "Charles",
+                "balance": 1000,
+                "hole_cards": [],
+                "current_bet": 0,
+                "total_committed": 0,
+                "has_folded": False,
+                "is_all_in": False,
+                "is_human": False,
+                "last_action": "",
+            },
+        ],
+        "board": [],
+        "deck": [],
+        "pots": [],
+        "pot": 0,
+        "current_bet": 0,
+        "min_raise": 20,
+        "dealer_pos": 2,
+        "small_blind": 10,
+        "big_blind": 20,
+        "stage": "preflop",
+        "last_raiser": None,
+    }
 p1,p2,p3,p4,p5,river = deal(poker_shuffle())
 print(river,p1)
 print(best_hand(river + p1))
