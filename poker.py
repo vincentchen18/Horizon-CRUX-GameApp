@@ -120,6 +120,13 @@ def best_hand(cards_7):
 
 def showdown(h1, h2, h3, h4, h5):
     winner = max(h1, h2, h3, h4, h5)
+    distribution = [0,0,0,0,0]
+    win = [hand == winner for hand in [h1, h2, h3, h4, h5]]
+    split = win.count(True)
+    for i in range(5):
+        if win[i]:
+            distribution[i] = round(1/split, 2)
+    return distribution
 
 p1,p2,p3,p4,p5,river = deal(poker_shuffle())
 print(river,p1)
