@@ -132,7 +132,9 @@ def showdown(h1, h2, h3, h4, h5):
 def print_board(action1, action2, action3, action4, action5, b1, b2, b3, b4, b5): # -> actions: CALL, FOLD, ALL IN, etc
     pass
 
-
+def reset_for_new_hand(state):
+    # wipe everyting
+    pass
 
 
 
@@ -214,6 +216,9 @@ def poker_play(): #hardcode player to p3
         "stage": "preflop",
         "last_raiser": None,
     }
+
+
+#test
 p1,p2,p3,p4,p5,river = deal(poker_shuffle())
 print(river,p1)
 print(best_hand(river + p1))
