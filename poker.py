@@ -168,6 +168,7 @@ def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, e
     print("     ".join(names))
     print("     ".join(actions))
     print("     ".join(balances))
+    print()
 
 def reset_for_new_hand(state):
     #
@@ -178,7 +179,58 @@ def reset_for_new_hand(state):
         state['players'][x]['has_folded'] = False
         state['players'][x]['is_all_in'] = False
         state['players'][x]['last_action'] = ""
+    state["board"] = []
+    state["deck"] = []
+    state["pots"] = []
+    state["pot"] = 0
+    state["current_bet"] = 0
+    state["min_raise"] = state["big_blind"]
+    state["stage"] = "preflop"
+    state["last_raiser"] = None
     return state
+
+def play_hand(state):
+    reset_for_new_hand(state)
+    state["deck"] = poker_shuffle()
+
+    for player in state["players"]:
+        player['hole_cards'] = [state["deck"].pop(), state["deck"].pop()] #deal
+    state["stage"] = "preflop"
+    print_board(state)
+    #betting_round(state)
+    #collect_bets(state)
+
+    #flop
+    state["board"].extend(state["deck"].pop() for i in range(3))
+    state["stage"] = "flop"
+    print_board(state)
+    #betting_round(state)
+    #collect_bets(state)
+
+    #card4
+    state["board"].append(state["deck"].pop())
+    state["stage"] = "turn"
+    print_board(state)
+    #betting_round(state)
+    #collect_bets(state)
+
+    #river/card5
+    state["board"].append(state["deck"].pop())
+    state["stage"] = "river"
+    print_board(state)
+    #betting_round(state)
+    #collect_bets(state)
+
+    #showdown
+    state["stage"] = "showdown"
+    print("Showdown (not coded yet, (stub))")
+    #award_pots(state)
+
+    state['dealer_pos'] = (state['dealer_pos']-1)%5
+
+
+
+
 
 def poker_play(): #hardcode player to p3
     while True:
@@ -258,18 +310,23 @@ def poker_play(): #hardcode player to p3
         "stage": "preflop",
         "last_raiser": None,
     }
-
+    for hand_num in range(3):
+        print('testing...')
+        play_hand(state)
+        input("Press Enter to continue...")
 
 #test
 if __name__ == "__main__":
-    p1,p2,p3,p4,p5,river = deal(poker_shuffle())
-    construct = [best_hand(p1+river), best_hand(p2+river), best_hand(p3+river), best_hand(p4+river), best_hand(p5+river)]
-    print(river)
-    print(p1, hands[construct[0][0]])
-    print(p2, hands[construct[1][0]])
-    print(p3, hands[construct[2][0]])
-    print(p4, hands[construct[3][0]])
-    print(p5, hands[construct[4][0]])
-    print(showdown(construct))
-    state = {"players": [{"name": "Vinnie", "balance": 1000, "hole_cards": p1, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Shawn", "balance": 1000, "hole_cards": p2, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "You", "balance": 1000, "hole_cards": p3, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": True, "last_action": ""}, {"name": "Roy", "balance": 1000, "hole_cards": p4, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Charles", "balance": 1000, "hole_cards": p5, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}], "board": [], "deck": [], "pots": [], "pot": 0, "current_bet": 0, "min_raise": 20, "dealer_pos": 2, "small_blind": 10, "big_blind": 20, "stage": "preflop", "last_raiser": None}
-    print_board(state, 1)
+    #p1,p2,p3,p4,p5,river = deal(poker_shuffle())
+    #construct = [best_hand(p1+river), best_hand(p2+river), best_hand(p3+river), best_hand(p4+river), best_hand(p5+river)]
+    #print(river)
+    #print(p1, hands[construct[0][0]])
+    #print(p2, hands[construct[1][0]])
+    #print(p3, hands[construct[2][0]])
+    #print(p4, hands[construct[3][0]])
+    #print(p5, hands[construct[4][0]])
+    #print(showdown(construct))
+    #state = {"players": [{"name": "Vinnie", "balance": 1000, "hole_cards": p1, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Shawn", "balance": 1000, "hole_cards": p2, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "You", "balance": 1000, "hole_cards": p3, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": True, "last_action": ""}, {"name": "Roy", "balance": 1000, "hole_cards": p4, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Charles", "balance": 1000, "hole_cards": p5, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}], "board": [], "deck": [], "pots": [], "pot": 0, "current_bet": 0, "min_raise": 20, "dealer_pos": 2, "small_blind": 10, "big_blind": 20, "stage": "preflop", "last_raiser": None}
+    #print_board(state, 1)
+
+    poker_play()
