@@ -130,8 +130,45 @@ def showdown(list_of_hands):
             distribution[i] = round(1/split, 2)
     return distribution
 
-def print_board(state, community): # -> actions: CALL, FOLD, ALL IN, etc
-    f
+def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, etc
+    red = "\033[91m"
+    regular = "\033[0m"
+    community = state["board"] + ["##"] * (5-len(state["board"]))
+    c1,c2,c3,c4,c5 = community
+    print("                      COMMUNITY CARDS")
+    print(f"                   {c1}   {c2}   {c3}   {c4}   {c5}")
+    print()
+    names = []
+    hole_cards = []
+    balances = []
+    actions = []
+    committed = []
+    for index, player in enumerate(state["players"]):
+        # red if it's someone's current turn
+        if index == current_person:
+            name_str = f"{red}{player['name']}{regular}"
+            padding = 10-len(player['name'])
+            name_str = name_str + " "*padding
+        else:
+            name_str = f"{player['name']:<10}"
+        names.append(name_str)
+
+        if player["is_human"] or player["has_folded"]:
+            hc = " ".join(player["hole_cards"]) if player["hole_cards"] else ""
+        else:
+            hc = "?? ??"
+        if player["has_folded"]:
+            hc = "FOLDED"
+        hole_cards.append(f"{hc:<10}")
+        balances.append(f"${player['balance']:<9}")
+        actions.append(f"{player['last_action']:<10}")
+        committed.append(f"${player['total_committed']:<9}")
+    print("     ".join(committed))
+    print("     ".join(hole_cards))
+    print("     ".join(names))
+    print("     ".join(actions))
+    print("     ".join(balances))
+
 def reset_for_new_hand(state):
     #
     for x in range(5):
@@ -235,4 +272,4 @@ if __name__ == "__main__":
     print(p5, hands[construct[4][0]])
     print(showdown(construct))
     state = {"players": [{"name": "Vinnie", "balance": 1000, "hole_cards": p1, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Shawn", "balance": 1000, "hole_cards": p2, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "You", "balance": 1000, "hole_cards": p3, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": True, "last_action": ""}, {"name": "Roy", "balance": 1000, "hole_cards": p4, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Charles", "balance": 1000, "hole_cards": p5, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}], "board": [], "deck": [], "pots": [], "pot": 0, "current_bet": 0, "min_raise": 20, "dealer_pos": 2, "small_blind": 10, "big_blind": 20, "stage": "preflop", "last_raiser": None}
-    print_board(state, river)
+    print_board(state, 1)
