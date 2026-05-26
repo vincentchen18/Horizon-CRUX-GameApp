@@ -232,28 +232,28 @@ def play_hand(state):
     state["stage"] = "preflop"
     print_board(state)
     #betting_round(state)
-    #collect_bets(state)
+    collect_bets(state)
 
     #flop
     state["board"].extend(state["deck"].pop() for i in range(3))
     state["stage"] = "flop"
     print_board(state)
     #betting_round(state)
-    #collect_bets(state)
+    collect_bets(state)
 
     #card4
     state["board"].append(state["deck"].pop())
     state["stage"] = "turn"
     print_board(state)
     #betting_round(state)
-    #collect_bets(state)
+    collect_bets(state)
 
     #river/card5
     state["board"].append(state["deck"].pop())
     state["stage"] = "river"
     print_board(state)
     #betting_round(state)
-    #collect_bets(state)
+    collect_bets(state)
 
     #showdown
     state["stage"] = "showdown"
