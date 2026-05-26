@@ -222,6 +222,31 @@ def collect_bets(state):
         player['current_bet'] = 0 #refresh for next round
     state['pot'] = sum(player['amount'] for player in state["pots"])
 
+def award_pots(state): #compare hands and distribute winnings. If tie and not int, give remaining chips to winner closest to the left of the dealer
+    results = []
+    for pot_index, pot in enumerate(state["pots"]):
+        evaluations = [best_hand(state["players"][index]["hole_cards"] + state["board"] for index in pot['eligible'])]
+        distribution = showdown(evaluations)
+        winners = []
+        total_awarded = 0
+        for index, winnings_percent in enumerate(distribution):
+            if winnings_percent > 0:
+                player_index = pot['eligible'][index]
+                winnings = int(pot['amount'] * winnings_percent)
+                state['players'][player_index]['balance'] += winnings
+                total_awarded += winnings
+                winners.append(player_index)
+        leftovers = pot['amount'] - total_awarded
+        if leftovers != 0 and winners: #redistribute remainders to the winner closest on the left of the dealer
+            winners_priority = sorted(winners, key=lambda i: (state['dealer_pos']-i)%5)
+            step = 1
+            for i in range(leftovers):
+                target = winners_priority[i % len(winners_priority)]
+                state['players'][target]['balance'] += step
+        results.append((pot_index, winners, pot['amount']))
+    state['pots'] = []
+    state['pot'] = 0
+    return results
 
 def play_hand(state):
     reset_for_new_hand(state)
