@@ -357,7 +357,7 @@ def betting_round(state):
         closing_player = None
     state['last_raiser'] = None
     start = first_active(state, start)
-    if count_able_to_act() == 0:
+    if count_able_to_act(state) == 0:
         return
     if count_not_folded(state) <= 1:
         return
@@ -405,34 +405,34 @@ def play_hand(state):
         player['hole_cards'] = [state["deck"].pop(), state["deck"].pop()] #deal
     state["stage"] = "preflop"
     print_board(state)
-    #betting_round(state)
+    betting_round(state)
     collect_bets(state)
 
     #flop
     state["board"].extend(state["deck"].pop() for i in range(3))
     state["stage"] = "flop"
     print_board(state)
-    #betting_round(state)
+    betting_round(state)
     collect_bets(state)
 
     #card4
     state["board"].append(state["deck"].pop())
     state["stage"] = "turn"
     print_board(state)
-    #betting_round(state)
+    betting_round(state)
     collect_bets(state)
 
     #river/card5
     state["board"].append(state["deck"].pop())
     state["stage"] = "river"
     print_board(state)
-    #betting_round(state)
+    betting_round(state)
     collect_bets(state)
 
     #showdown
     state["stage"] = "showdown"
     print("Showdown (not coded yet, (stub))")
-    #award_pots(state)
+    award_pots(state)
 
     state['dealer_pos'] = (state['dealer_pos']-1)%5
 
