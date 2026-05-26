@@ -189,6 +189,21 @@ def reset_for_new_hand(state):
     state["last_raiser"] = None
     return state
 
+def collect_bets(state):
+    contributors = []
+    for index, player in enumerate(state["players"]):
+        if player['current_bet'] > 0:
+            contributors.append((index, player['current_bet'], player['has_folded']))
+    if not contributors:
+        return #nothing happened lol
+    levels = sorted(set([contributor[1] for contributor in contributors]))
+    previous_level = 0
+    for level in levels:
+        slice_size = level-previous_level
+        pot_amt = slice_size * len([c[1] for c in contributors if c[1] >= level])
+        eligible = sorted([c[0] for c in contributors if c[1] >= level and not c[2]])
+
+
 def play_hand(state):
     reset_for_new_hand(state)
     state["deck"] = poker_shuffle()
