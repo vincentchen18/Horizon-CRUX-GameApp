@@ -199,9 +199,28 @@ def collect_bets(state):
     levels = sorted(set([contributor[1] for contributor in contributors]))
     previous_level = 0
     for level in levels:
+        # pot logic: if someone all in, they can only receive max 5* their all in assuming everyone else is still in.
         slice_size = level-previous_level
         pot_amt = slice_size * len([c[1] for c in contributors if c[1] >= level])
         eligible = sorted([c[0] for c in contributors if c[1] >= level and not c[2]])
+        if not eligible:
+            if state['pots']:
+                state['pots'][-1]['amount'] += pot_amt
+            previous_level = level
+            continue
+        merged = False
+        for existing_pot in state["pots"]:
+            if sorted(existing_pot["eligible"]) == eligible:
+                existing_pot['amount'] += pot_amt
+                merged = True
+                break
+        if not merged:
+            state["pots"].append({"amount":pot_amt, "eligible":eligible})
+        previous_level = level
+
+    for player in state["players"]:
+        player['current_bet'] = 0 #refresh for next round
+    state['pot'] = sum(player['amount'] for player in state["pots"])
 
 
 def play_hand(state):
