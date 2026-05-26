@@ -449,6 +449,8 @@ def play_hand(state):
 
     state['dealer_pos'] = (state['dealer_pos']-1)%5
 
+    # still need: showdown, make a print_board where allcardsshow=True. For printboard, make another condition upon reveal that shows the best hand of each card too.
+
 
 
 
