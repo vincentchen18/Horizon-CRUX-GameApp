@@ -248,6 +248,46 @@ def award_pots(state): #compare hands and distribute winnings. If tie and not in
     state['pot'] = 0
     return results
 
+def apply_action(state, player_index, action, amount):
+    player = state['players'][player_index]
+    if action == "fold":
+        player['has_folded'] = True
+        player['last_action'] = "FOLD"
+        return
+    if action == "check":
+        player['last_action'] = "CHECK"
+        return
+    if action == "call":
+        player['balance'] -= amount
+        player['current_bet'] += amount
+        player['total_committed'] += amount
+        player['last_action'] = f"CALL ${amount}"
+        return
+    if action == "raise":
+        extra_money_needed = amount - player['current_bet']
+        player['balance'] -= extra_money_needed
+        player['current_bet'] = amount
+        player['total_committed'] += extra_money_needed
+        increment = amount - state['current_bet']
+        state['min_raise'] = max(state['min_raise'], increment)
+        state['current_bet'] = amount
+        player['last_action'] = f"RAISE TO ${amount}"
+        return
+    if action == 'all_in': # wow either very poor or very confident
+        actual = player['balance']
+        player['balance'] = 0
+        player['current_bet'] += actual
+        player['total_committed'] += actual
+        if player['current_bet'] > state['current_bet']: # enough to match
+            increment = player['current_bet'] - state['current_bet']
+            state['min_raise'] = max(state['min_raise'], increment)
+            state['current_bet'] = player['current_bet']
+        player['last_action'] = f"ALL IN ${player['current_bet']}"
+        return
+
+
+
+
 def play_hand(state):
     reset_for_new_hand(state)
     state["deck"] = poker_shuffle()
