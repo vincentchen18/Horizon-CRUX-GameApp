@@ -112,7 +112,7 @@ def check_set(cards):
         return returnee
 
 def best_hand(cards_7):
-    combos = itertools.combinations(cards_7, 5)
+    combos = list(itertools.combinations(cards_7, 5))
     best = [0,0,0]
     for combo in combos:
         ev = check_set(combo)
@@ -238,7 +238,7 @@ def collect_bets(state):
 def award_pots(state): #compare hands and distribute winnings. If tie and not int, give remaining chips to winner closest to the left of the dealer
     results = []
     for pot_index, pot in enumerate(state["pots"]):
-        evaluations = [best_hand(state["players"][index]["hole_cards"] + state["board"] for index in pot['eligible'])]
+        evaluations = [list(best_hand(state["players"][index]["hole_cards"] + state["board"]) for index in pot['eligible'])]
         distribution = showdown(evaluations)
         winners = []
         total_awarded = 0
@@ -346,12 +346,47 @@ def legal_actions(state, player_index):
     legal = {"fold":True, "check":False, "call":False, "all_in":p['balance']>0}
     if required_to_stay_in_play == 0:
         legal["check"] = True
+        legal['raise'] = state['current_bet'] + p['balance']
     elif p['balance'] >= required_to_stay_in_play:
         legal['call'] = required_to_stay_in_play
+    # raise
+
     return legal
 
 def get_action(state, player_index, legal):
     # temporarily, since no bots, check if can, else call, else fold
+    if player_index == 2:
+        print(legal)
+        can = [x for x in legal.keys() if legal[x]]
+        message = "Please enter a valid action. You can"
+        for act in can[:-1]:
+            if act == 'check':
+                message += " check,"
+            elif act == 'raise':
+                message += f" raise to maximum {legal[act]},"
+            elif act == 'fold':
+                message += f" fold,"
+            elif act == 'all_in':
+                message += f" go all in,"
+        act = can[-1]
+        if act == 'check':
+            message += " or check:"
+        elif act == 'raise':
+            message += f" or raise to maximum {legal[act]}:"
+        elif act == 'fold':
+            message += f" or fold:"
+        elif act == 'all_in':
+            message += f" or go all in:"
+        while True:
+            print(message)
+            act = list(input("Enter action (e.g. call, raise 20): ").strip().lower().split())
+            if act[0] in list(map(lambda x: x.replace("_", " "), can)) or " ".join(act) in list(map(lambda x: x.replace("_", " "), can)):
+                break #this part is not done, need to verify legality
+            print("That's not a valid action. Please enter a valid action.")
+        if len(act) == 2 and act[0] =='raise':
+            return (act, int(act[1]))
+        else:
+            return ("_".join(act), 0)
     if legal.get("check"):
         return ('check', 0)
     if legal.get("call"):
@@ -362,6 +397,8 @@ def get_action(state, player_index, legal):
 
 def betting_round(state):
     if state['stage'] == 'preflop':
+        small_blind = (state['dealer_pos']-1)%5
+        big_blind = (state['dealer_pos']-2)%5
         start = (state['dealer_pos']-3)%5 #guy after big blind
         closing_player = (state['dealer_pos']-2)%5
         state['last_raiser'] = None
