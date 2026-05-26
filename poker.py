@@ -355,9 +355,47 @@ def betting_round(state):
     else:
         start = (state['dealer_pos']-1)%5 # guy after dealer goes if not preflop
         closing_player = None
-        state['last_raiser'] = None
+    state['last_raiser'] = None
+    start = first_active(state, start)
+    if count_able_to_act() == 0:
+        return
+    if count_not_folded(state) <= 1:
+        return
 
+    if state['stage'] != 'preflop' and closing_player is None:
+        closing_player = start
+    current = start
+    iterations = 0 # --> guard against infiniteloops in testing
+    while True:
+        iterations += 1
+        if iterations > 100:
+            print("EXCEED 100, FORCE QUITTING")
+            break
+        player = state['players'][current]
+        if player['has_folded'] or player['is_all_in']:
+            current = next_active(state, closing_player)
+            continue
+        prev_table_bet = state['current_bet']
+        #applyaction
+        legal = legal_actions(state, current)
+        action, amount = get_action(state, current, legal)
+        apply_action(state, current, action, amount)
 
+        if count_not_folded(state) == 1:
+            return
+        is_raise = action == 'raise' or (action == 'all_in' and state['current_bet'] > prev_table_bet)
+        if is_raise:
+            state['last_raiser'] = current
+            closing_player = next_active_right(state, current)
+        if all_active_have_matched(state):
+            if current == closing_player:
+                return
+            bb_pos = (state['dealer_pos']-2)%5
+            if state['stage'] == 'preflop' and state['last_raiser'] is None and current == bb_pos:
+                return
+        if count_able_to_act(state) == 0:
+            return
+        current = next_active(state, current)
 
 def play_hand(state):
     reset_for_new_hand(state)
