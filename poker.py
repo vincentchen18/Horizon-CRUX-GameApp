@@ -130,9 +130,18 @@ def showdown(list_of_hands):
             distribution[i] = round(1/split, 2)
     return distribution
 
-def print_board(action1, action2, action3, action4, action5, b1, b2, b3, b4, b5): # -> actions: CALL, FOLD, ALL IN, etc
-    pass
-
+def print_board(state, community): # -> actions: CALL, FOLD, ALL IN, etc
+    c1,c2,c3,c4,c5 = community
+    h1,h2,h3,h4,h5 = [" ".join(state['players'][i]['hole_cards']) for i in range(5)]
+    print("                 COMMUNITY CARDS")
+    print(f"              {c1}   {c2}   {c3}   {c4}   {c5}")
+    print()
+    # print how much each guy has in the current round, total committed
+    print()
+    print(f"{h1}     {h2}     {h3}     {h4}     {h5}")
+    print(f"Vinnie    Shawn      You       Roy       Charles")
+    # then print actions
+    #then print balance
 def reset_for_new_hand(state):
     #
     for x in range(5):
@@ -234,3 +243,5 @@ print(p3, hands[construct[2][0]])
 print(p4, hands[construct[3][0]])
 print(p5, hands[construct[4][0]])
 print(showdown(construct))
+state = {"players": [{"name": "Vinnie", "balance": 1000, "hole_cards": p1, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Shawn", "balance": 1000, "hole_cards": p2, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "You", "balance": 1000, "hole_cards": p3, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": True, "last_action": ""}, {"name": "Roy", "balance": 1000, "hole_cards": p4, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Charles", "balance": 1000, "hole_cards": p5, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}], "board": [], "deck": [], "pots": [], "pot": 0, "current_bet": 0, "min_raise": 20, "dealer_pos": 2, "small_blind": 10, "big_blind": 20, "stage": "preflop", "last_raiser": None}
+print_board(state, river)
