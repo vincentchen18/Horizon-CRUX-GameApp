@@ -136,8 +136,10 @@ def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, e
     regular = "\033[0m"
     community = state["board"] + ["##"] * (5-len(state["board"]))
     c1,c2,c3,c4,c5 = community
-    print("                      COMMUNITY CARDS")
-    print(f"                   {c1}   {c2}   {c3}   {c4}   {c5}")
+    print("                            COMMUNITY CARDS")
+    print()
+    print(f"                         {c1}   {c2}   {c3}   {c4}   {c5}")
+    print()
     print()
     names = []
     hole_cards = []
