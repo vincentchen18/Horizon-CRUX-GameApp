@@ -132,6 +132,7 @@ def showdown(list_of_hands):
 
 def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, etc
     red = "\033[91m"
+    blue = "\033[94m"
     regular = "\033[0m"
     community = state["board"] + ["##"] * (5-len(state["board"]))
     c1,c2,c3,c4,c5 = community
@@ -144,13 +145,23 @@ def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, e
     actions = []
     committed = []
     for index, player in enumerate(state["players"]):
+        # dealer button
+        if index == state["dealer_pos"]:
+            display_name = f"{player['name']} {blue}(D){regular}"
+            visible_len = len(player['name']) + 4  # " (D)" = 4 visible chars
+        else:
+            display_name = player['name']
+            visible_len = len(player['name'])
+
         # red if it's someone's current turn
         if index == current_person:
-            name_str = f"{red}{player['name']}{regular}"
-            padding = 10-len(player['name'])
-            name_str = name_str + " "*padding
+            name_str = f"{red}{display_name}{regular}"
         else:
-            name_str = f"{player['name']:<10}"
+            name_str = display_name
+
+        # manual pad
+        padding = max(12 - visible_len, 1)
+        name_str = name_str + " " * padding
         names.append(name_str)
 
         if player["is_human"] or player["has_folded"]:
@@ -159,10 +170,10 @@ def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, e
             hc = "?? ??"
         if player["has_folded"]:
             hc = "FOLDED"
-        hole_cards.append(f"{hc:<10}")
-        balances.append(f"${player['balance']:<9}")
-        actions.append(f"{player['last_action']:<10}")
-        committed.append(f"${player['total_committed']:<9}")
+        hole_cards.append(f"{hc:<12}")
+        balances.append(f"${player['balance']:<11}")
+        actions.append(f"{player['last_action']:<12}")
+        committed.append(f"${player['total_committed']:<11}")
     print("     ".join(committed))
     print("     ".join(hole_cards))
     print("     ".join(names))
