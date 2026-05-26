@@ -285,6 +285,77 @@ def apply_action(state, player_index, action, amount):
         player['last_action'] = f"ALL IN ${player['current_bet']}"
         return
 
+def count_not_folded(state):
+    return sum(1 for p in state['players'] if not p['has_folded'])
+
+def count_able_to_act(state):
+    return sum(1 for p in state['players'] if not p['has_folded'] and not p['is_all_in'])
+
+def all_active_have_matched(state):
+    # if everyone has called, then return true
+    for p in state['players']:
+        if p['has_folded'] or p['is_all_in']:
+            continue#ignore, they can't move
+        if p['current_bet'] != state['current_bet']: # under has not called or over just raised
+            return False
+    return True
+
+def first_active(state, start_index): # find first nonfolded player
+    index = start_index
+    for i in range(5):
+        player = state['players'][index]
+        if not player['has_folded'] and not player['is_all_in']:
+            return index
+        index = (index-1)%5
+    return start_index
+
+def next_active(state, current): # find next player that can move
+    index = (current-1)%5
+    for i in range(5):
+        player = state['players'][index]
+        if not player['has_folded'] and not player['is_all_in']:
+            return index
+        index = (index-1)%5
+    return current
+
+def next_active_right(state, current): # find who closes round if the current player raises
+    index = (current+1)%5
+    for i in range(5):
+        player = state['players'][index]
+        if not player['has_folded'] and not player['is_all_in']:
+            return index
+        index = (index+1)%5
+    return current
+
+def legal_actions(state, player_index):
+    p = state['players'][player_index]
+    required_to_stay_in_play = state['current_bet'] - p['current_bet']
+    legal = {"fold":True, "check":False, "call":False, "all_in":p['balance']>0}
+    if required_to_stay_in_play == 0:
+        legal["check"] = True
+    elif p['balance'] >= required_to_stay_in_play:
+        legal['call'] = required_to_stay_in_play
+    return legal
+
+def get_action(state, player_index, legal):
+    # temporarily, since no bots, check if can, else call, else fold
+    if legal.get("check"):
+        return ('check', 0)
+    if legal.get("call"):
+        return ('call', legal['call'])
+    return ('fold', 0)
+
+
+
+def betting_round(state):
+    if state['stage'] == 'preflop':
+        start = (state['dealer_pos']-3)%5 #guy after big blind
+        closing_player = (state['dealer_pos']-2)%5
+        state['last_raiser'] = None
+    else:
+        start = (state['dealer_pos']-1)%5 # guy after dealer goes if not preflop
+        closing_player = None
+        state['last_raiser'] = None
 
 
 
