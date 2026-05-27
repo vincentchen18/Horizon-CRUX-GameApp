@@ -550,7 +550,7 @@ def play_hand(state):
         print_board(state)
         betting_round(state)
         collect_bets(state)
-
+    time.sleep(1)
     #card4
     if count_not_folded(state) > 1:
         state["board"].append(state["deck"].pop())
@@ -558,7 +558,7 @@ def play_hand(state):
         print_board(state)
         betting_round(state)
         collect_bets(state)
-
+    time.sleep(1)
     #river/card5
     if count_not_folded(state) > 1:
         state["board"].append(state["deck"].pop())
