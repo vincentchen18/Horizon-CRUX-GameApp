@@ -130,11 +130,11 @@ def showdown(list_of_hands):
             distribution[i] = round(1/split, 2)
     return distribution
 
-def print_board(state, current_person=None, show_all=None): # -> actions: CALL, FOLD, ALL IN, etc
+def print_board(state, current_person=None, show_all=None, winners=None): # -> actions: CALL, FOLD, ALL IN, etc
     red = "\033[91m"
     blue = "\033[94m"
     regular = "\033[0m"
-    yellow = "\033[33m"
+    yellow = "\033[93m"
     community = state["board"] + ["##"] * (5-len(state["board"]))
     c1,c2,c3,c4,c5 = community
     print("                            COMMUNITY CARDS")
@@ -147,6 +147,7 @@ def print_board(state, current_person=None, show_all=None): # -> actions: CALL, 
     balances = []
     actions = []
     committed = []
+    hand_descriptions = []
     for index, player in enumerate(state["players"]):
         # dealer button
         if index == state["dealer_pos"]:
@@ -156,9 +157,11 @@ def print_board(state, current_person=None, show_all=None): # -> actions: CALL, 
             display_name = player['name']
             visible_len = len(player['name'])
 
-        # red if it's someone's current turn
+        # red if it's someone's current turn, yellow if win
         if index == current_person:
             name_str = f"{red}{display_name}{regular}"
+        elif winners is not None and index in winners:
+            name_str = f"{yellow}{display_name}{regular}"
         else:
             name_str = display_name
 
@@ -177,11 +180,18 @@ def print_board(state, current_person=None, show_all=None): # -> actions: CALL, 
         balances.append(f"${player['balance']:<11}")
         actions.append(f"{player['last_action']:<14}")
         committed.append(f"${player['total_committed']:<11}")
+        if show_all is not None and not player["has_folded"] and player["hole_cards"]:
+            eval_result = best_hand(player["hole_cards"] + state["board"])
+            desc = hands[eval_result[0]]
+            hand_descriptions.append(f"{desc:<14}")
+        else:
+            hand_descriptions.append(f"{'':<14}")
     print("     ".join(committed))
     print("     ".join(hole_cards))
     print("     ".join(names))
     print("   ".join(actions))
-
+    if show_all is not None:
+        print("   ".join(hand_descriptions))
     print("     ".join(balances))
     print()
 
@@ -508,10 +518,23 @@ def play_hand(state):
 
     #showdown
     state["stage"] = "showdown"
-    print_board(state, None, True)
-    award_pots(state)
-
-    state['dealer_pos'] = (state['dealer_pos']-1)%5
+    results = award_pots(state)
+    all_winners = set()
+    for pot_index, winners, amount in results:
+        all_winners.update(winners)
+    print_board(state, None, True, all_winners)
+    print()
+    for pot_index, winners, amount in results:
+        winner_names = ", ".join(state["players"][w]["name"] for w in winners)
+        pot_label = f"Pot {pot_index + 1}" if len(results) > 1 else "Pot"
+        if len(winners) == 1:
+            w = winners[0]
+            eval_result = best_hand(state["players"][w]["hole_cards"] + state["board"])
+            print(f"{pot_label} (${amount}): {winner_names} wins with {hands[eval_result[0]]}")
+        else:
+            split_amount = amount // len(winners)
+            print(f"{pot_label} (${amount}): split between {winner_names} (${split_amount} each)")
+    state['dealer_pos'] = (state['dealer_pos'] - 1) % 5
 
 
 
