@@ -135,6 +135,7 @@ def print_board(state, current_person=None, show_all=None, winners=None): # -> a
     blue = "\033[94m"
     regular = "\033[0m"
     yellow = "\033[93m"
+    grey = "\033[90m"
     community = state["board"] + ["##"] * (5-len(state["board"]))
     c1,c2,c3,c4,c5 = community
     print("                            COMMUNITY CARDS")
@@ -149,16 +150,16 @@ def print_board(state, current_person=None, show_all=None, winners=None): # -> a
     committed = []
     hand_descriptions = []
     for index, player in enumerate(state["players"]):
-        # dealer button
-        if index == state["dealer_pos"]:
+        is_busted = player["is_busted"]
+        if not is_busted and index == state["dealer_pos"]:
             display_name = f"{player['name']} {blue}(D){regular}"
-            visible_len = len(player['name']) + 4  # " (D)" = 4 visible chars
+            visible_len = len(player['name']) + 4
         else:
             display_name = player['name']
             visible_len = len(player['name'])
-
-        # red if it's someone's current turn, yellow if win
-        if index == current_person:
+        if is_busted: #colour priority
+            name_str = f"{grey}{display_name}{regular}"
+        elif index == current_person:
             name_str = f"{red}{display_name}{regular}"
         elif winners is not None and index in winners:
             name_str = f"{yellow}{display_name}{regular}"
@@ -170,17 +171,31 @@ def print_board(state, current_person=None, show_all=None, winners=None): # -> a
         name_str = name_str + " " * padding
         names.append(name_str)
 
-        if player["is_human"] or player["has_folded"] or show_all is not None:
+        if is_busted:
+            hc = "OUT"
+        elif player["is_human"] or player["has_folded"] or show_all is not None:
             hc = " ".join(player["hole_cards"]) if player["hole_cards"] else ""
         else:
             hc = "?? ??"
         if player["has_folded"] and show_all is None:
             hc = "FOLDED"
-        hole_cards.append(f"{hc:<12}")
-        balances.append(f"${player['balance']:<11}")
-        actions.append(f"{player['last_action']:<17}")
-        committed.append(f"${player['total_committed']:<11}")
-        if show_all is not None and player["hole_cards"]:
+        if is_busted:
+            hole_cards.append(f"{grey}{hc:<12}{regular}")
+        else:
+            hole_cards.append(f"{hc:<12}")
+        if is_busted:
+            balances.append(f"{grey}$0          {regular}")  # show $0 for busted
+            actions.append(f"{grey}{'BUSTED':<14}{regular}")
+            committed.append(f"{grey}$0          {regular}")
+        else:
+            balances.append(f"${player['balance']:<11}")
+            actions.append(f"{player['last_action']:<17}")
+            committed.append(f"${player['total_committed']:<11}")
+
+            # hand descriptions row — skip for busted
+        if is_busted:
+            hand_descriptions.append(f"{grey}{'':<14}{regular}")
+        elif show_all is not None and player["hole_cards"]:
             eval_result = best_hand(player["hole_cards"] + state["board"])
             desc = hands[eval_result[0]]
             hand_descriptions.append(f"{desc:<14}")
@@ -318,15 +333,15 @@ def apply_action(state, player_index, action, amount):
         return
 
 def count_not_folded(state):
-    return sum(1 for p in state['players'] if not p['has_folded'])
+    return sum(1 for p in state['players'] if not p['has_folded'] and not p["is_busted"])
 
 def count_able_to_act(state):
-    return sum(1 for p in state['players'] if not p['has_folded'] and not p['is_all_in'])
+    return sum(1 for p in state['players'] if not p['has_folded'] and not p['is_all_in'] and not p["is_busted"])
 
 def all_active_have_matched(state):
     # if everyone has called, then return true
     for p in state['players']:
-        if p['has_folded'] or p['is_all_in']:
+        if p['has_folded'] or p['is_all_in'] or p['is_busted']:
             continue#ignore, they can't move
         if p['current_bet'] != state['current_bet']: # under has not called or over just raised
             return False
@@ -336,7 +351,7 @@ def first_active(state, start_index): # find first nonfolded player
     index = start_index
     for i in range(5):
         player = state['players'][index]
-        if not player['has_folded'] and not player['is_all_in']:
+        if not player['has_folded'] and not player['is_all_in'] and not player["is_busted"]:
             return index
         index = (index-1)%5
     return start_index
@@ -345,7 +360,7 @@ def next_active(state, current): # find next player that can move
     index = (current-1)%5
     for i in range(5):
         player = state['players'][index]
-        if not player['has_folded'] and not player['is_all_in']:
+        if not player['has_folded'] and not player['is_all_in'] and not player["is_busted"]:
             return index
         index = (index-1)%5
     return current
@@ -354,7 +369,7 @@ def next_active_right(state, current): # find who closes round if the current pl
     index = (current+1)%5
     for i in range(5):
         player = state['players'][index]
-        if not player['has_folded'] and not player['is_all_in']:
+        if not player['has_folded'] and not player['is_all_in'] and not player["is_busted"]:
             return index
         index = (index+1)%5
     return current
@@ -493,18 +508,30 @@ def betting_round(state):
             return
         current = next_active(state, current)
 
+def next_non_busted(state, current):
+    idx = (current - 1) % 5
+    for _ in range(5):
+        if not state["players"][idx]["is_busted"]:
+            return idx
+        idx = (idx - 1) % 5
+    return current
+
 def play_hand(state):
     reset_for_new_hand(state)
     state["deck"] = poker_shuffle()
 
     for player in state["players"]:
+        if player["is_busted"]: #dont deal if no money
+            continue
         player['hole_cards'] = [state["deck"].pop(), state["deck"].pop()] #deal
 
-    sb_pos = (state["dealer_pos"] - 1) % 5 #blinds
-    bb_pos = (state["dealer_pos"] - 2) % 5
-    apply_action(state, sb_pos, "call", state["small_blind"])
+    sb_pos = next_non_busted(state, state["dealer_pos"])
+    bb_pos = next_non_busted(state, sb_pos) #blinds
+    sb_amount = min(state["small_blind"], state["players"][sb_pos]["balance"])
+    apply_action(state, sb_pos, "call", sb_amount)
     state["players"][sb_pos]["last_action"] = f"Small blind: ${state['small_blind']}"
-    apply_action(state, bb_pos, "call", state["big_blind"])
+    bb_amount = min(state["big_blind"], state["players"][bb_pos]["balance"])
+    apply_action(state, bb_pos, "call", bb_amount)
     state["players"][bb_pos]["last_action"] = f"Big blind: ${state['big_blind']}"
     state["current_bet"] = state["big_blind"]
     state["min_raise"] = state["big_blind"]
@@ -556,12 +583,20 @@ def play_hand(state):
         if len(winners) == 1:
             w = winners[0]
             eval_result = best_hand(state["players"][w]["hole_cards"] + state["board"])
-            print(f"{pot_label} (${amount}): {winner_names} wins with {hands[eval_result[0]]}")
+            hand_name = hands[eval_result[0]]
+            verb = "win" if state["players"][w]["is_human"] else "wins"
+            article = "an" if hand_name[0] in "AEIOU" else "a"
+            others_folded = count_not_folded(state) == 1
+            suffix = " (others folded)" if others_folded else ""
+            print(f"{pot_label} (${amount}): {winner_names} {verb} with {article} {hand_name}{suffix}")
         else:
             split_amount = amount // len(winners)
             print(f"{pot_label} (${amount}): split between {winner_names} (${split_amount} each)")
     state['dealer_pos'] = (state['dealer_pos'] - 1) % 5
-
+    for p in state["players"]:
+        if p["balance"] == 0 and not p["is_busted"]:
+            p["is_busted"] = True
+            print(f"💀 {p['name']} has been eliminated!")
 
 
 
@@ -587,6 +622,7 @@ def poker_play(): #hardcode player to p3
                 "is_all_in": False,
                 "is_human": False,
                 "last_action": "",
+                "is_busted": False,
             },
             {
                 "name": "Shawn",
@@ -598,6 +634,7 @@ def poker_play(): #hardcode player to p3
                 "is_all_in": False,
                 "is_human": False,
                 "last_action": "",
+                "is_busted": False,
             },
             {
                 "name": "You",
@@ -609,6 +646,7 @@ def poker_play(): #hardcode player to p3
                 "is_all_in": False,
                 "is_human": True,
                 "last_action": "",
+                "is_busted": False,
             },
             {
                 "name": "Roy",
@@ -620,6 +658,7 @@ def poker_play(): #hardcode player to p3
                 "is_all_in": False,
                 "is_human": False,
                 "last_action": "",
+                "is_busted": False,
             },
             {
                 "name": "Charles",
@@ -631,6 +670,7 @@ def poker_play(): #hardcode player to p3
                 "is_all_in": False,
                 "is_human": False,
                 "last_action": "",
+                "is_busted": False,
             },
         ],
         "board": [],
@@ -645,10 +685,14 @@ def poker_play(): #hardcode player to p3
         "stage": "preflop",
         "last_raiser": None,
     }
-    for hand_num in range(3):
+    hand_num = 0
+    while sum(1 for p in state["players"] if not p["is_busted"]) > 1:
+        hand_num += 1
         print('testing...')
         play_hand(state)
-        input("Press Enter to continue...")
+        a = input('enter to continue')
+    winner = next(p for p in state["players"] if not p["is_busted"])
+    print(f"\n{winner['name']} wins the game with ${winner['balance']}!")
 
 #test
 if __name__ == "__main__":
