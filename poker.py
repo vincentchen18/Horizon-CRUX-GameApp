@@ -343,50 +343,73 @@ def next_active_right(state, current): # find who closes round if the current pl
 def legal_actions(state, player_index):
     p = state['players'][player_index]
     required_to_stay_in_play = state['current_bet'] - p['current_bet']
-    legal = {"fold":True, "check":False, "call":False, "all_in":p['balance']>0}
+    legal = {"fold":True, "check":False, "call":False, "raise":False,"all_in":p['balance']>0}
     if required_to_stay_in_play == 0:
         legal["check"] = True
-        legal['raise'] = state['current_bet'] + p['balance']
+        if p['balance'] > state['min_raise']:
+            legal['raise'] = True
     elif p['balance'] >= required_to_stay_in_play:
         legal['call'] = required_to_stay_in_play
+        if p['balance'] > required_to_stay_in_play + state['min_raise']:
+            legal['raise'] = True
     # raise
 
     return legal
 
+def human_input(state, player_index, legal):
+    p = state['players'][player_index]
+    options = []
+    if legal['fold']:
+        options.append('(F)old')
+    if legal['check']:
+        options.append('(Ch)eck')
+    if legal['call']:
+        options.append('(Ca)ll')
+    if legal['raise']:
+        min_total = state['current_bet'] + state['min_raise']
+        max_total = p['current_bet'] + p['balance']
+        options.append(f"(R)aise <amount> (minimum ${min_total}, maximum ${max_total})")
+    if legal['all_in']:
+        options.append(f'(A)ll-in ${p['balance']}')
+
+    while True:
+        print(" | ".join(options))
+        raw = input("Enter action: ").strip().replace("all in", "allin").replace("all-in", "allin").replace("all_in", "allin").lower()
+        if not raw:
+            continue
+        parts = raw.split()
+        command = parts[0]
+        if command in ['f', 'fold'] and legal['fold']:
+            return ("fold",0)
+        if command in ("ch", "check") and legal['check']:
+            return ("check",0)
+        if command in ("ca", "call") and legal['call']:
+            return ("call",legal['call'])
+        if command in ("a", 'allin', 'all_in', 'all-in') and legal['all_in']:
+            return ("all_in",0)
+        if command in ("r", "raise"):
+            if not legal['raise']:
+                print("Cannot raise.")
+                continue
+            if len(parts) < 2:
+                print("Specify amount with 'raise <amount>'")
+                continue
+            try:
+                amount = int(parts[1])
+            except ValueError:
+                print("Invalid amount.")
+                continue
+            min_total = state['current_bet'] + state['min_raise']
+            max_total = p['current_bet'] + p['balance']
+            if amount < min_total or amount > max_total:
+                print(f"Amount must be between {min_total} and {max_total}.")
+                continue
+            return ('raise',amount)
+        print("Invalid action.")
 def get_action(state, player_index, legal):
     # temporarily, since no bots, check if can, else call, else fold
     if player_index == 2:
-        print(legal)
-        can = [x for x in legal.keys() if legal[x]]
-        message = "Please enter a valid action. You can"
-        for act in can[:-1]:
-            if act == 'check':
-                message += " check,"
-            elif act == 'raise':
-                message += f" raise to maximum {legal[act]},"
-            elif act == 'fold':
-                message += f" fold,"
-            elif act == 'all_in':
-                message += f" go all in,"
-        act = can[-1]
-        if act == 'check':
-            message += " or check:"
-        elif act == 'raise':
-            message += f" or raise to maximum {legal[act]}:"
-        elif act == 'fold':
-            message += f" or fold:"
-        elif act == 'all_in':
-            message += f" or go all in:"
-        while True:
-            print(message)
-            act = list(input("Enter action (e.g. call, raise 20): ").strip().lower().split())
-            if act[0] in list(map(lambda x: x.replace("_", " "), can)) or " ".join(act) in list(map(lambda x: x.replace("_", " "), can)):
-                break #this part is not done, need to verify legality
-            print("That's not a valid action. Please enter a valid action.")
-        if len(act) == 2 and act[0] =='raise':
-            return (act, int(act[1]))
-        else:
-            return ("_".join(act), 0)
+        return human_input(state, player_index, legal)
     if legal.get("check"):
         return ('check', 0)
     if legal.get("call"):
