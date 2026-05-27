@@ -465,6 +465,7 @@ def betting_round(state):
         prev_table_bet = state['current_bet']
         #applyaction
         legal = legal_actions(state, current)
+        print_board(state, current_person=current)
         action, amount = get_action(state, current, legal)
         apply_action(state, current, action, amount)
 
