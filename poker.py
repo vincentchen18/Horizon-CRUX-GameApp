@@ -596,7 +596,8 @@ def play_hand(state):
     for p in state["players"]:
         if p["balance"] == 0 and not p["is_busted"]:
             p["is_busted"] = True
-            print(f"💀 {p['name']} has been eliminated!")
+            verb = "have" if p["is_human"] else "has"
+            print(f"{p['name']} {verb} been eliminated!")
 
 
 
