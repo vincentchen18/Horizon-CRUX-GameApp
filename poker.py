@@ -130,10 +130,11 @@ def showdown(list_of_hands):
             distribution[i] = round(1/split, 2)
     return distribution
 
-def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, etc
+def print_board(state, current_person=None, show_all=None): # -> actions: CALL, FOLD, ALL IN, etc
     red = "\033[91m"
     blue = "\033[94m"
     regular = "\033[0m"
+    yellow = "\033[33m"
     community = state["board"] + ["##"] * (5-len(state["board"]))
     c1,c2,c3,c4,c5 = community
     print("                            COMMUNITY CARDS")
@@ -166,7 +167,7 @@ def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, e
         name_str = name_str + " " * padding
         names.append(name_str)
 
-        if player["is_human"] or player["has_folded"]:
+        if player["is_human"] or player["has_folded"] or show_all is not None:
             hc = " ".join(player["hole_cards"]) if player["hole_cards"] else ""
         else:
             hc = "?? ??"
@@ -174,12 +175,13 @@ def print_board(state, current_person=None): # -> actions: CALL, FOLD, ALL IN, e
             hc = "FOLDED"
         hole_cards.append(f"{hc:<12}")
         balances.append(f"${player['balance']:<11}")
-        actions.append(f"{player['last_action']:<12}")
+        actions.append(f"{player['last_action']:<14}")
         committed.append(f"${player['total_committed']:<11}")
     print("     ".join(committed))
     print("     ".join(hole_cards))
     print("     ".join(names))
-    print("     ".join(actions))
+    print("   ".join(actions))
+
     print("     ".join(balances))
     print()
 
@@ -506,12 +508,11 @@ def play_hand(state):
 
     #showdown
     state["stage"] = "showdown"
-    print("Showdown (not coded yet, (stub))")
+    print_board(state, None, True)
     award_pots(state)
 
     state['dealer_pos'] = (state['dealer_pos']-1)%5
 
-    # still need: showdown, make a print_board where allcardsshow=True. For printboard, make another condition upon reveal that shows the best hand of each card too.
 
 
 
