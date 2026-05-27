@@ -3,7 +3,7 @@ nums = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
 cardmapper = {'A':14, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8,"9":9,"10":10, "J":11,"Q":12,"K":13}
 import random, time, itertools
 from collections import Counter
-hands = {10:"Straight Flush", 9:'Four of a Kind', 8: "Full House", 7: "Flush", 6: "Straight", 5: "Three of a Kind", 4: "Two Pair", 3: "Pair", 2:"High Card",}
+hands = {10:"Straight Flush", 9:'4 of a Kind', 8: "Full House", 7: "Flush", 6: "Straight", 5: "3 of a Kind", 4: "Two Pair", 3: "Pair", 2:"High Card",}
 
 def poker_shuffle():
     deck = [nums[i] + suits[j] for i in range(13) for j in range(4)]
