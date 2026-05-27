@@ -174,13 +174,13 @@ def print_board(state, current_person=None, show_all=None, winners=None): # -> a
             hc = " ".join(player["hole_cards"]) if player["hole_cards"] else ""
         else:
             hc = "?? ??"
-        if player["has_folded"]:
+        if player["has_folded"] and show_all is None:
             hc = "FOLDED"
         hole_cards.append(f"{hc:<12}")
         balances.append(f"${player['balance']:<11}")
-        actions.append(f"{player['last_action']:<14}")
+        actions.append(f"{player['last_action']:<17}")
         committed.append(f"${player['total_committed']:<11}")
-        if show_all is not None and not player["has_folded"] and player["hole_cards"]:
+        if show_all is not None and player["hole_cards"]:
             eval_result = best_hand(player["hole_cards"] + state["board"])
             desc = hands[eval_result[0]]
             hand_descriptions.append(f"{desc:<14}")
@@ -189,7 +189,7 @@ def print_board(state, current_person=None, show_all=None, winners=None): # -> a
     print("     ".join(committed))
     print("     ".join(hole_cards))
     print("     ".join(names))
-    print("   ".join(actions))
+    print("".join(actions))
     if show_all is not None:
         print("   ".join(hand_descriptions))
     print("     ".join(balances))
@@ -252,6 +252,11 @@ def collect_bets(state):
 def award_pots(state): #compare hands and distribute winnings. If tie and not int, give remaining chips to winner closest to the left of the dealer
     results = []
     for pot_index, pot in enumerate(state["pots"]):
+        if len(pot["eligible"]) == 1: # exit if everybody folded except 1
+            winner_idx = pot["eligible"][0]
+            state["players"][winner_idx]["balance"] += pot["amount"]
+            results.append((pot_index, [winner_idx], pot["amount"]))
+            continue
         evaluations = [best_hand(state["players"][index]["hole_cards"] + state["board"]) for index in pot['eligible']]
         distribution = showdown(evaluations)
         winners = []
@@ -424,11 +429,14 @@ def get_action(state, player_index, legal):
     # temporarily, since no bots, check if can, else call, else fold
     if player_index == 2:
         return human_input(state, player_index, legal)
-    if legal.get("check"):
-        return ('check', 0)
-    if legal.get("call"):
-        return ('call', legal['call'])
-    return ('fold', 0)
+    if player_index == 0:
+        if legal.get("check"):
+            return ('check', 0)
+        if legal.get("call"):
+            return ('call', legal['call'])
+        return ('fold', 0)
+    else:
+        return ('fold',0)
 
 
 
@@ -491,32 +499,49 @@ def play_hand(state):
 
     for player in state["players"]:
         player['hole_cards'] = [state["deck"].pop(), state["deck"].pop()] #deal
+
+    sb_pos = (state["dealer_pos"] - 1) % 5 #blinds
+    bb_pos = (state["dealer_pos"] - 2) % 5
+    apply_action(state, sb_pos, "call", state["small_blind"])
+    state["players"][sb_pos]["last_action"] = f"Small blind: ${state['small_blind']}"
+    apply_action(state, bb_pos, "call", state["big_blind"])
+    state["players"][bb_pos]["last_action"] = f"Big blind: ${state['big_blind']}"
+    state["current_bet"] = state["big_blind"]
+    state["min_raise"] = state["big_blind"]
+    state["last_raiser"] = bb_pos
+
     state["stage"] = "preflop"
+
     print_board(state)
     betting_round(state)
     collect_bets(state)
 
     #flop
-    state["board"].extend(state["deck"].pop() for i in range(3))
-    state["stage"] = "flop"
-    print_board(state)
-    betting_round(state)
-    collect_bets(state)
+    if count_not_folded(state) > 1:
+        state["board"].extend(state["deck"].pop() for i in range(3))
+        state["stage"] = "flop"
+        print_board(state)
+        betting_round(state)
+        collect_bets(state)
 
     #card4
-    state["board"].append(state["deck"].pop())
-    state["stage"] = "turn"
-    print_board(state)
-    betting_round(state)
-    collect_bets(state)
+    if count_not_folded(state) > 1:
+        state["board"].append(state["deck"].pop())
+        state["stage"] = "turn"
+        print_board(state)
+        betting_round(state)
+        collect_bets(state)
 
     #river/card5
-    state["board"].append(state["deck"].pop())
-    state["stage"] = "river"
-    print_board(state)
-    betting_round(state)
-    collect_bets(state)
+    if count_not_folded(state) > 1:
+        state["board"].append(state["deck"].pop())
+        state["stage"] = "river"
+        print_board(state)
+        betting_round(state)
+        collect_bets(state)
 
+    while len(state["board"]) < 5:
+        state["board"].append(state["deck"].pop())
     #showdown
     state["stage"] = "showdown"
     results = award_pots(state)
