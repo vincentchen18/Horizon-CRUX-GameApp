@@ -444,14 +444,14 @@ def get_action(state, player_index, legal):
     # temporarily, since no bots, check if can, else call, else fold
     if player_index == 2:
         return human_input(state, player_index, legal)
-    if player_index == 0:
-        if legal.get("check"):
-            return ('check', 0)
-        if legal.get("call"):
-            return ('call', legal['call'])
-        return ('fold', 0)
-    else:
-        return ('fold',0)
+    if legal.get("check"):
+        return ('check', 0)
+
+    if legal.get("call"):
+        return ('call', legal['call'])
+
+    return ('fold', 0)
+
 
 
 
@@ -483,7 +483,7 @@ def betting_round(state):
             break
         player = state['players'][current]
         if player['has_folded'] or player['is_all_in']:
-            current = next_active(state, closing_player)
+            current = next_active(state, current)
             continue
         prev_table_bet = state['current_bet']
         #applyaction
@@ -592,12 +592,13 @@ def play_hand(state):
         else:
             split_amount = amount // len(winners)
             print(f"{pot_label} (${amount}): split between {winner_names} (${split_amount} each)")
-    state['dealer_pos'] = (state['dealer_pos'] - 1) % 5
     for p in state["players"]:
         if p["balance"] == 0 and not p["is_busted"]:
             p["is_busted"] = True
             verb = "have" if p["is_human"] else "has"
             print(f"{p['name']} {verb} been eliminated!")
+
+    state['dealer_pos'] = next_non_busted(state, state['dealer_pos'])
 
 
 
@@ -691,9 +692,12 @@ def poker_play(): #hardcode player to p3
         hand_num += 1
         print('testing...')
         play_hand(state)
+        if sum(1 for p in state['players'] if not p["is_busted"] > 1):
+            winner = next(p for p in state["players"] if not p["is_busted"])
+            print(f"\n{winner['name']} wins the game with ${winner['balance']}!")
+            break
         a = input('enter to continue')
-    winner = next(p for p in state["players"] if not p["is_busted"])
-    print(f"\n{winner['name']} wins the game with ${winner['balance']}!")
+
 
 #test
 if __name__ == "__main__":
