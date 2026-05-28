@@ -478,7 +478,7 @@ def Shawn(state, player_index, legal):
         target = min(target, p['current_bet'] + p['balance'])
         return ('raise', target)
     elif equity > pot_odds * 0.85 and legal['call']:
-        return ('all_in', 0)
+        return ('call', legal['call'])
     elif equity < 0.25 and legal['raise'] and random.random() < 0.1: #bluff raising
         target = state['current_bet'] + state['min_raise'] * 2
         target = min(target, p['current_bet'] + p['balance'])
@@ -516,12 +516,12 @@ def Charles(state, player_index, legal):
     equity = estimate_equity(state, player_index)
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
-
+    already_in = p['total_committed']
+    if already_in > 400 and equity < 0.5:
+        if legal['check']:
+            return ('check', 0)
+        return ('fold', 0)
     if needed == 0:
-        if equity < 0.35 and legal['raise']:
-            target = state['current_bet'] + state['min_raise'] * 2
-            target = min(target, p['current_bet'] + p['balance'])
-            return ('raise', target)
         return ('check', 0)
     if equity > 0.85:
         target = state['current_bet'] + state['min_raise'] * 3
@@ -601,12 +601,16 @@ def get_action(state, player_index, legal):
     if state['players'][player_index]['name'] == "You":
         return human_input(state, player_index, legal)
     elif state['players'][player_index]['name'] == 'Vinnie':
+        time.sleep(3)
         return Vinnie(state, player_index, legal)
     elif state['players'][player_index]['name'] == 'Shawn':
+        time.sleep(3)
         return Shawn(state, player_index, legal)
     elif state['players'][player_index]['name'] == 'Roy':
+        time.sleep(3)
         return Roy(state, player_index, legal)
     elif state['players'][player_index]['name'] == 'Charles':
+        time.sleep(3)
         return Charles(state, player_index, legal)
     return False # this never gets reached
 
