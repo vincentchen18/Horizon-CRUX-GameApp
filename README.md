@@ -6,7 +6,17 @@ My Console Gamer Project is a runnable no-internet application that runs in the 
 ## Usage:
 ### Windows:
 
+Download `ConsoleGamesWindows.exe` from https://github.com/vincentchen18/Horizon-CRUX-GameApp/releases/tag/v1.0/
 
+Open Powershell, navigate to downloads, and run with `.\ConsoleGamesWindows.exe` , enjoy! :))))))
+
+### Linux:
+
+Download `ConsoleGamesLinux` from https://github.com/vincentchen18/Horizon-CRUX-GameApp/releases/tag/v1.0/
+
+Open Terminal, navigate to Downloads, and run using `./ConsoleGamesLinux`, enjoy! :))))))
+
+**Side note: There is currently no Mac distribution due to me not having a mac so I cannot compile one :(((. Instead, you can run it directly by using the project files directly and following the instructions below.**
 
 To use the project files directly, type the following commands into your terminal.
 
