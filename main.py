@@ -1,4 +1,5 @@
-import tictactoe, puzzle15, pig, nim, lightsout, game2048, connect4, checkers, blackjack, othello, puzzle24, poker
+import tictactoe, puzzle15, pig, nim, lightsout, game2048, connect4, checkers, blackjack, othello, puzzle24, poker, colorama
+colorama.init()
 
 print("Welcome to my Console Gamer!")
 def menu():
