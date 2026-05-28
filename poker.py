@@ -427,7 +427,7 @@ def Vinnie(state, player_index, legal):
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
     pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
-    if p['total_committed'] > 600:  # already deep, stop escalating
+    if p['current_bet'] >= state['big_blind'] * 6:  # already deep, stop escalating
         if equity > 0.6 and legal['call']:
             return ('call', legal['call'])
         elif legal['check']:
@@ -464,7 +464,7 @@ def Shawn(state, player_index, legal):
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
     pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
-    if p['total_committed'] > 800:  # already deep, stop escalating
+    if p['current_bet'] >= state['big_blind'] * 6.5:  # already deep, stop escalating
         if equity > 0.6 and legal['call']:
             return ('call', legal['call'])
         elif legal['check']:
@@ -500,7 +500,7 @@ def Roy(state, player_index, legal):
     equity = estimate_equity(state, player_index, trials=250)
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
-    if p['total_committed'] > 500:  # already deep, stop escalating
+    if p['current_bet'] >= state['big_blind'] * 5:  # already deep, stop escalating
         if equity > 0.6 and legal['call']:
             return ('call', legal['call'])
         elif legal['check']:
@@ -533,7 +533,7 @@ def Charles(state, player_index, legal):
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
     already_in = p['total_committed']
-    if p['total_committed'] > 600:  # already deep, stop escalating
+    if p['current_bet'] >= state['big_blind'] * 4:  # already deep, stop escalating
         if equity > 0.6 and legal['call']:
             return ('call', legal['call'])
         elif legal['check']:
