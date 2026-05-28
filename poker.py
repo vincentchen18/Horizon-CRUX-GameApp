@@ -636,9 +636,10 @@ def betting_round(state):
 
     if state['stage'] != 'preflop' and closing_player is None:
         closing_player = start
-    for pl in state['players']:
-        if not pl['has_folded'] and not pl['is_all_in'] and not pl['is_busted']:
-            pl['last_action'] = ''
+    if state['stage'] != 'preflop':
+        for pl in state['players']:
+            if not pl['has_folded'] and not pl['is_all_in'] and not pl['is_busted']:
+                pl['last_action'] = ''
     current = start
     iterations = 0 # --> guard against infiniteloops in testing
     while True:
