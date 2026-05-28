@@ -319,8 +319,6 @@ def apply_action(state, player_index, action, amount):
         player['balance'] -= extra_money_needed
         player['current_bet'] = amount
         player['total_committed'] += extra_money_needed
-        increment = amount - state['current_bet']
-        state['min_raise'] = max(state['min_raise'], increment)
         state['current_bet'] = amount
         if player['balance'] == 0:
             player['is_all_in'] = True
@@ -431,6 +429,13 @@ def Vinnie(state, player_index, legal):
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
     pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
+    if p['total_committed'] > 300:  # already deep, stop escalating
+        if equity > 0.6 and legal['call']:
+            return ('call', legal['call'])
+        elif legal['check']:
+            return ('check', 0)
+        else:
+            return ('fold', 0)
 
     # if no bet needed, vinnie can check
     if needed == 0:
@@ -461,6 +466,13 @@ def Shawn(state, player_index, legal):
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
     pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
+    if p['total_committed'] > 300:  # already deep, stop escalating
+        if equity > 0.6 and legal['call']:
+            return ('call', legal['call'])
+        elif legal['check']:
+            return ('check', 0)
+        else:
+            return ('fold', 0)
     if needed == 0:
         if equity > 0.5 and legal['raise']:
             target = state['current_bet'] + state['min_raise'] * 3
@@ -490,6 +502,13 @@ def Roy(state, player_index, legal):
     equity = estimate_equity(state, player_index, trials=250)
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
+    if p['total_committed'] > 300:  # already deep, stop escalating
+        if equity > 0.6 and legal['call']:
+            return ('call', legal['call'])
+        elif legal['check']:
+            return ('check', 0)
+        else:
+            return ('fold', 0)
     if needed == 0:
         if equity > 0.75 and legal['raise']:
             target = state['current_bet'] + state['min_raise'] * 2
@@ -517,6 +536,13 @@ def Charles(state, player_index, legal):
     p = state['players'][player_index]
     needed = state['current_bet'] - p['current_bet']
     already_in = p['total_committed']
+    if p['total_committed'] > 300:  # already deep, stop escalating
+        if equity > 0.6 and legal['call']:
+            return ('call', legal['call'])
+        elif legal['check']:
+            return ('check', 0)
+        else:
+            return ('fold', 0)
     if already_in > 400 and equity < 0.5:
         if legal['check']:
             return ('check', 0)
@@ -635,7 +661,7 @@ def betting_round(state):
         return
 
     if state['stage'] != 'preflop' and closing_player is None:
-        closing_player = start
+        closing_player = next_active_right(state, start)
     if state['stage'] != 'preflop':
         for pl in state['players']:
             if not pl['has_folded'] and not pl['is_all_in'] and not pl['is_busted']:
