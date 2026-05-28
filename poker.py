@@ -440,9 +440,9 @@ def Vinnie(state, player_index, legal):
     # if no bet needed, vinnie can check
     if needed == 0:
         if equity > 0.65 and legal['raise']:
-            target = state['current_bet'] + state['min_raise'] * 2
+            target = state['current_bet'] + state['min_raise'] * (1.5+random.random()/2)
             target = min(target, p['current_bet'] + p['balance']) # cant raise more than balance
-            return ('raise', target)
+            return ('raise', int(target))
         return ('check', 0)
 
     pot_odds = needed/(pot+needed)
@@ -475,26 +475,26 @@ def Shawn(state, player_index, legal):
             return ('fold', 0)
     if needed == 0:
         if equity > 0.5 and legal['raise']:
-            target = state['current_bet'] + state['min_raise'] * 3
+            target = state['current_bet'] + state['min_raise'] * (2+random.random())
             target = min(target, p['current_bet'] + p['balance'])
-            return ('raise', target)
+            return ('raise', int(target))
         # BLUFF >:)
         if equity < 0.25 and legal['raise'] and random.random() < 0.15:
-            target = state['current_bet'] + state['min_raise'] * 2
+            target = state['current_bet'] + state['min_raise'] * (1.5+random.random()/2)
             target = min(target, p['current_bet'] + p['balance'])
-            return ('raise', target)
+            return ('raise', int(target))
         return ('check', 0)
     pot_odds = needed/(pot+needed)
     if equity > pot_odds * 1.1 and legal['raise']:
-        target = state['current_bet'] + state['min_raise'] * 3
+        target = state['current_bet'] + state['min_raise'] * (1.5+random.random()*1.5)
         target = min(target, p['current_bet'] + p['balance'])
-        return ('raise', target)
+        return ('raise', int(target))
     elif equity > pot_odds * 0.85 and legal['call']:
         return ('call', legal['call'])
     elif equity < 0.25 and legal['raise'] and random.random() < 0.1: #bluff raising
-        target = state['current_bet'] + state['min_raise'] * 2
+        target = state['current_bet'] + state['min_raise'] * (1+random.random())
         target = min(target, p['current_bet'] + p['balance'])
-        return ('raise', target)
+        return ('raise', int(target))
     else:
         return ('fold', 0)
 
@@ -511,9 +511,9 @@ def Roy(state, player_index, legal):
             return ('fold', 0)
     if needed == 0:
         if equity > 0.75 and legal['raise']:
-            target = state['current_bet'] + state['min_raise'] * 2
+            target = state['current_bet'] + state['min_raise'] * (1.2+4*random.random()/5)
             target = min(target, p['current_bet'] + p['balance'])
-            return ('raise', target)
+            return ('raise', int(target))
         return ('check', 0)
     pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
     pot_odds = needed / (pot + needed)
@@ -550,9 +550,9 @@ def Charles(state, player_index, legal):
     if needed == 0:
         return ('check', 0)
     if equity > 0.85:
-        target = state['current_bet'] + state['min_raise'] * 3
+        target = state['current_bet'] + state['min_raise'] * (2+random.random()/2)
         target = min(target, p['current_bet'] + p['balance'])
-        return ('raise', target)
+        return ('raise', int(target))
     elif equity > 0.75:
         return ('fold', 0)
     elif equity > 0.5:
@@ -563,9 +563,9 @@ def Charles(state, player_index, legal):
                 return ('check', 0)
         return ('fold', 0)
     elif equity < 0.4 and legal['raise'] and random.random() < 0.4:
-        target = state['current_bet'] + state['min_raise'] * 2
+        target = state['current_bet'] + state['min_raise'] * (1.8+random.random()/5)
         target = min(target, p['current_bet'] + p['balance'])
-        return ('raise', target)
+        return ('raise', int(target))
     if legal['call']:
         return ('call', legal['call'])
     if legal['check']:
