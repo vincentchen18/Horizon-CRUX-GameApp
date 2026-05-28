@@ -521,10 +521,9 @@ def Roy(state, player_index, legal):
         target = state['current_bet'] + state['min_raise'] * (1 + random.random())
         target = min(target, p['current_bet'] + p['balance'])
         return ('raise', int(target))
-    elif equity > pot_odds * 1.3 and legal['call']:
-        #only call if good odds
+    elif equity > pot_odds * 1.05 and legal['call']:
         return ('call', legal['call'])
-    elif equity > pot_odds * 1.3 and legal['all_in']:
+    elif equity > pot_odds * 1.05 and legal['all_in']:
         return ('all_in', 0)
     else:
         return ('fold', 0)
