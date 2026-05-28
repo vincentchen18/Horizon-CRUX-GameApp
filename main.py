@@ -1,4 +1,4 @@
-import tictactoe, puzzle15, pig, nim, lightsout, game2048, connect4, checkers, blackjack, othello, puzzle24
+import tictactoe, puzzle15, pig, nim, lightsout, game2048, connect4, checkers, blackjack, othello, puzzle24, poker
 
 print("Welcome to my Console Gamer!")
 def menu():
@@ -49,7 +49,7 @@ def main():
             elif choice == 11:
                 puzzle24.puzzle24_play()
             elif choice == 12:
-                print("This game is still being built!")
+                poker.poker_play()
 
         except Exception:
             print("That's not a valid input. Please enter a number from 1 - 12.")
