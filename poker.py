@@ -486,6 +486,66 @@ def Shawn(state, player_index, legal):
     else:
         return ('fold', 0)
 
+def Roy(state, player_index, legal):
+    equity = estimate_equity(state, player_index, trials=250)
+    p = state['players'][player_index]
+    needed = state['current_bet'] - p['current_bet']
+    if needed == 0:
+        if equity > 0.75 and legal['raise']:
+            target = state['current_bet'] + state['min_raise'] * 2
+            target = min(target, p['current_bet'] + p['balance'])
+            return ('raise', target)
+        return ('check', 0)
+    pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
+    pot_odds = needed / (pot + needed)
+
+    if equity > 0.75 and legal['raise']:
+        # raise only on strong hands
+        target = state['current_bet'] + state['min_raise'] * (1 + random.random())
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', int(target))
+    elif equity > pot_odds * 1.3 and legal['call']:
+        #only call if good odds
+        return ('call', legal['call'])
+    elif equity > pot_odds * 1.3 and legal['all_in']:
+        return ('all_in', 0)
+    else:
+        return ('fold', 0)
+
+def Charles(state, player_index, legal):
+    equity = estimate_equity(state, player_index)
+    p = state['players'][player_index]
+    needed = state['current_bet'] - p['current_bet']
+
+    if needed == 0:
+        if equity < 0.35 and legal['raise']:
+            target = state['current_bet'] + state['min_raise'] * 2
+            target = min(target, p['current_bet'] + p['balance'])
+            return ('raise', target)
+        return ('check', 0)
+    if equity > 0.85:
+        target = state['current_bet'] + state['min_raise'] * 3
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', target)
+    elif equity > 0.75:
+        return ('fold', 0)
+    elif equity > 0.5:
+        if random.random() < 0.6:
+            if legal['call']:
+                return ('call', legal['call'])
+            elif legal['check']:
+                return ('check', 0)
+        return ('fold', 0)
+    elif equity < 0.4 and legal['raise'] and random.random() < 0.4:
+        target = state['current_bet'] + state['min_raise'] * 2
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', target)
+    if legal['call']:
+        return ('call', legal['call'])
+    if legal['check']:
+        return ('check', 0)
+    return ('fold', 0)
+
 def human_input(state, player_index, legal):
     p = state['players'][player_index]
     options = []
@@ -538,16 +598,17 @@ def human_input(state, player_index, legal):
         print("Invalid action.")
 def get_action(state, player_index, legal):
     # temporarily, since no bots, check if can, else call, else fold
-    if player_index == 2:
+    if state['players'][player_index]['name'] == "You":
         return human_input(state, player_index, legal)
-    return ('all_in', 0)
-    if legal.get("check"):
-        return ('check', 0)
-
-    if legal.get("call"):
-        return ('call', legal['call'])
-
-    return ('fold', 0)
+    elif state['players'][player_index]['name'] == 'Vinnie':
+        return Vinnie(state, player_index, legal)
+    elif state['players'][player_index]['name'] == 'Shawn':
+        return Shawn(state, player_index, legal)
+    elif state['players'][player_index]['name'] == 'Roy':
+        return Roy(state, player_index, legal)
+    elif state['players'][player_index]['name'] == 'Charles':
+        return Charles(state, player_index, legal)
+    return False # this never gets reached
 
 
 
