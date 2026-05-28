@@ -230,39 +230,37 @@ def reset_for_new_hand(state):
     return state
 
 def collect_bets(state):
-    contributors = []
-    for index, player in enumerate(state["players"]):
-        if player['current_bet'] > 0:
-            contributors.append((index, player['current_bet'], player['has_folded']))
-    if not contributors:
-        return #nothing happened lol
-    levels = sorted(set([contributor[1] for contributor in contributors]))
+    for player in state["players"]:
+        player['current_bet'] = 0
+    state["current_bet"] = 0
+    state["min_raise"] = state["big_blind"]
+    state['pot'] = sum(p['total_committed'] for p in state["players"])
+
+def build_pots(state):
+    contributors = [(i, p['total_committed'], p['has_folded'])
+                    for i, p in enumerate(state['players']) if p['total_committed'] > 0]
+    pots = []
+    levels = sorted(set(c[1] for c in contributors))
     previous_level = 0
     for level in levels:
-        # pot logic: if someone all in, they can only receive max 5* their all in assuming everyone else is still in.
-        slice_size = level-previous_level
-        pot_amt = slice_size * len([c[1] for c in contributors if c[1] >= level])
+        slice_size = level - previous_level
+        pot_amt = slice_size * len([c for c in contributors if c[1] >= level])
         eligible = sorted([c[0] for c in contributors if c[1] >= level and not c[2]])
         if not eligible:
-            if state['pots']:
-                state['pots'][-1]['amount'] += pot_amt
+            if pots:
+                pots[-1]['amount'] += pot_amt
             previous_level = level
             continue
         merged = False
-        for existing_pot in state["pots"]:
-            if sorted(existing_pot["eligible"]) == eligible:
-                existing_pot['amount'] += pot_amt
+        for pot in pots:
+            if pot['eligible'] == eligible:
+                pot['amount'] += pot_amt
                 merged = True
                 break
         if not merged:
-            state["pots"].append({"amount":pot_amt, "eligible":eligible})
+            pots.append({'amount': pot_amt, 'eligible': eligible})
         previous_level = level
-
-    for player in state["players"]:
-        player['current_bet'] = 0 #refresh for next round
-    state['pot'] = sum(player['amount'] for player in state["pots"])
-    state["current_bet"] = 0
-    state["min_raise"] = state["big_blind"]
+    state['pots'] = pots
 
 def award_pots(state): #compare hands and distribute winnings. If tie and not int, give remaining chips to winner closest to the left of the dealer
     results = []
@@ -765,6 +763,7 @@ def play_hand(state):
         state["board"].append(state["deck"].pop())
     #showdown
     state["stage"] = "showdown"
+    build_pots(state)
     results = award_pots(state)
     all_winners = set()
     for pot_index, winners, amount in results:
