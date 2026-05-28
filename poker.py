@@ -894,20 +894,7 @@ def poker_play(): #hardcode player to p3
         if c == "Q":
             break
 
-
-
 #test
 if __name__ == "__main__":
-    #p1,p2,p3,p4,p5,river = deal(poker_shuffle())
-    #construct = [best_hand(p1+river), best_hand(p2+river), best_hand(p3+river), best_hand(p4+river), best_hand(p5+river)]
-    #print(river)
-    #print(p1, hands[construct[0][0]])
-    #print(p2, hands[construct[1][0]])
-    #print(p3, hands[construct[2][0]])
-    #print(p4, hands[construct[3][0]])
-    #print(p5, hands[construct[4][0]])
-    #print(showdown(construct))
-    #state = {"players": [{"name": "Vinnie", "balance": 1000, "hole_cards": p1, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Shawn", "balance": 1000, "hole_cards": p2, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "You", "balance": 1000, "hole_cards": p3, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": True, "last_action": ""}, {"name": "Roy", "balance": 1000, "hole_cards": p4, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Charles", "balance": 1000, "hole_cards": p5, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}], "board": [], "deck": [], "pots": [], "pot": 0, "current_bet": 0, "min_raise": 20, "dealer_pos": 2, "small_blind": 10, "big_blind": 20, "stage": "preflop", "last_raiser": None}
-    #print_board(state, 1)
 
     poker_play()
