@@ -4,7 +4,13 @@
 My Console Gamer Project is a runnable no-internet application that runs in the terminal/console, and you can play a variety of different games on it. Have fun! :)))
 
 ## Usage:
-To use this project, type the following commands into your terminal.
+### Windows:
+
+
+
+To use the project files directly, type the following commands into your terminal.
+
+```pip install colorama```
 
 ```git clone https://github.com/vincentchen18/Horizon-CRUX-GameApp```
 
@@ -62,4 +68,7 @@ A card game of skill, luck, and psychology, bet money based on cards or bluff. E
 
 Royal Flush > Straight Flush > Four of a Kind > Full House > Flush > Straight > 3 of a Kind > Two Pair > One pair > High Card.
 Side Note: I do not endorse or encourage gambling.
+
+# AI Disclosure
+Generative AI tools were used for a small part of algorithm explanations and finding bugs. However, all the main logic and all the code was written and tested by me.
 

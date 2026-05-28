@@ -185,7 +185,7 @@ def print_board(state, current_person=None, show_all=None, winners=None): # -> a
             hole_cards.append(f"{hc:<12}")
         if is_busted:
             balances.append(f"{grey}$0          {regular}")  # show $0 for busted
-            actions.append(f"{grey}{'BUSTED':<14}{regular}   ")
+            actions.append(f"{grey}{'BUSTED':<14}{regular}")
             committed.append(f"{grey}$0          {regular}")
         else:
             balances.append(f"${player['balance']:<11}")
@@ -404,8 +404,7 @@ def human_input(state, player_index, legal):
         max_total = p['current_bet'] + p['balance']
         options.append(f"(R)aise <amount> (minimum ${min_total}, maximum ${max_total})")
     if legal['all_in']:
-        x = p['balance'] # this is cus my dumb windows computer can't compile because of some nonexistent error
-        options.append(f'(A)ll-in ${x}')
+        options.append(f'(A)ll-in ${p['balance']}')
 
     while True:
         print(" | ".join(options))
@@ -445,13 +444,14 @@ def get_action(state, player_index, legal):
     # temporarily, since no bots, check if can, else call, else fold
     if player_index == 2:
         return human_input(state, player_index, legal)
-
-    if legal.get("check"):
-        return ('check', 0)
-    if legal.get("call"):
-        return ('call', legal['call'])
-    return ('fold', 0)
-
+    if player_index == 0:
+        if legal.get("check"):
+            return ('check', 0)
+        if legal.get("call"):
+            return ('call', legal['call'])
+        return ('fold', 0)
+    else:
+        return ('fold',0)
 
 
 
@@ -550,7 +550,7 @@ def play_hand(state):
         print_board(state)
         betting_round(state)
         collect_bets(state)
-    time.sleep(3)
+    time.sleep(1)
     #card4
     if count_not_folded(state) > 1:
         state["board"].append(state["deck"].pop())
@@ -558,7 +558,7 @@ def play_hand(state):
         print_board(state)
         betting_round(state)
         collect_bets(state)
-    time.sleep(3)
+    time.sleep(1)
     #river/card5
     if count_not_folded(state) > 1:
         state["board"].append(state["deck"].pop())
@@ -691,7 +691,7 @@ def poker_play(): #hardcode player to p3
         hand_num += 1
         print('testing...')
         play_hand(state)
-        time.sleep(5)
+        a = input('enter to continue')
     winner = next(p for p in state["players"] if not p["is_busted"])
     print(f"\n{winner['name']} wins the game with ${winner['balance']}!")
 
