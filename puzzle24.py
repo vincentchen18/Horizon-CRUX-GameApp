@@ -113,7 +113,7 @@ def puzzle24_play():
     while True:
         nums = puzzle_generate()
         print()
-        print(f"Make 24 using {" ".join(list(map(str, nums)))}, using each number exactly once with operations +, -, * and / and parentheses.")
+        print(f"Make 24 using {' '.join(list(map(str, nums)))}, using each number exactly once with operations +, -, * and / and parentheses.")
         while True:
             inp = input("Your math expression (or Q to give up, or N to get a new puzzle): ").strip()
             if inp.upper() == "Q":
