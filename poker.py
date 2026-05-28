@@ -884,7 +884,6 @@ def poker_play(): #hardcode player to p3
     hand_num = 0
     while sum(1 for p in state["players"] if not p["is_busted"]) > 1:
         hand_num += 1
-        print('testing...')
         play_hand(state)
         if sum(1 for p in state['players'] if not p["is_busted"]) <= 1:
             winner = next(p for p in state["players"] if not p["is_busted"])
