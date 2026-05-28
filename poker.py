@@ -308,7 +308,11 @@ def apply_action(state, player_index, action, amount):
         player['balance'] -= amount
         player['current_bet'] += amount
         player['total_committed'] += amount
-        player['last_action'] = f"CALL ${amount}"
+        if player['balance'] == 0:
+            player['is_all_in'] = True
+            player['last_action'] = f"ALL IN ${player['current_bet']}"
+        else:
+            player['last_action'] = f"CALL ${amount}"
         return
     if action == "raise":
         extra_money_needed = amount - player['current_bet']
@@ -318,14 +322,19 @@ def apply_action(state, player_index, action, amount):
         increment = amount - state['current_bet']
         state['min_raise'] = max(state['min_raise'], increment)
         state['current_bet'] = amount
-        player['last_action'] = f"RAISE TO ${amount}"
+        if player['balance'] == 0:
+            player['is_all_in'] = True
+            player['last_action'] = f"ALL IN ${amount}"
+        else:
+            player['last_action'] = f"RAISE TO ${amount}"
         return
-    if action == 'all_in': # wow either very poor or very confident
+    if action == 'all_in':
         actual = player['balance']
         player['balance'] = 0
         player['current_bet'] += actual
         player['total_committed'] += actual
-        if player['current_bet'] > state['current_bet']: # enough to match
+        player['is_all_in'] = True  # ← ADD THIS LINE
+        if player['current_bet'] > state['current_bet']:
             increment = player['current_bet'] - state['current_bet']
             state['min_raise'] = max(state['min_raise'], increment)
             state['current_bet'] = player['current_bet']
@@ -444,6 +453,7 @@ def get_action(state, player_index, legal):
     # temporarily, since no bots, check if can, else call, else fold
     if player_index == 2:
         return human_input(state, player_index, legal)
+    return ('all_in', 0)
     if legal.get("check"):
         return ('check', 0)
 
@@ -483,6 +493,8 @@ def betting_round(state):
             break
         player = state['players'][current]
         if player['has_folded'] or player['is_all_in']:
+            if count_able_to_act(state) == 0:
+                return
             current = next_active(state, current)
             continue
         prev_table_bet = state['current_bet']
@@ -692,7 +704,7 @@ def poker_play(): #hardcode player to p3
         hand_num += 1
         print('testing...')
         play_hand(state)
-        if sum(1 for p in state['players'] if not p["is_busted"] > 1):
+        if sum(1 for p in state['players'] if not p["is_busted"]) <= 1:
             winner = next(p for p in state["players"] if not p["is_busted"])
             print(f"\n{winner['name']} wins the game with ${winner['balance']}!")
             break
