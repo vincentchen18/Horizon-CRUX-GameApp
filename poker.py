@@ -322,7 +322,7 @@ def apply_action(state, player_index, action, amount):
             player['is_all_in'] = True
             player['last_action'] = f"ALL IN ${amount}"
         else:
-            player['last_action'] = f"RAISE TO ${amount}"
+            player['last_action'] = f"RAISE ${amount}"
         return
     if action == 'all_in':
         actual = player['balance']
