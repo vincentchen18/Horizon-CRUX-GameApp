@@ -426,6 +426,65 @@ def estimate_equity(state, player_index, trials=250): # for bot evaluation of ca
             ties += 1
     return (wins + ties * 0.5)/trials
 
+def Vinnie(state, player_index, legal):
+    equity = estimate_equity(state, player_index, trials=250)
+    p = state['players'][player_index]
+    needed = state['current_bet'] - p['current_bet']
+    pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
+
+    # if no bet needed, vinnie can check
+    if needed == 0:
+        if equity > 0.65 and legal['raise']:
+            target = state['current_bet'] + state['min_raise'] * 2
+            target = min(target, p['current_bet'] + p['balance']) # cant raise more than balance
+            return ('raise', target)
+        return ('check', 0)
+
+    pot_odds = needed/(pot+needed)
+    if equity > pot_odds * 1.5 and legal['raise']:
+        #strong cards so raise a bit
+        target = state['current_bet'] + state['min_raise'] * 2
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', target)
+    elif equity > pot_odds and legal['call']:
+        return ('call', legal['call'])
+    elif equity > pot_odds and legal['all_in']:
+        # if you can't call normally but cards ok, just force allin
+        return ('all_in', 0)
+    else:
+        if legal['check']:
+            return ('check', 0) # if check is free, check, else fold
+        return ('fold', 0)
+
+def Shawn(state, player_index, legal):
+    equity = estimate_equity(state, player_index, trials=250)
+    p = state['players'][player_index]
+    needed = state['current_bet'] - p['current_bet']
+    pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
+    if needed == 0:
+        if equity > 0.5 and legal['raise']:
+            target = state['current_bet'] + state['min_raise'] * 3
+            target = min(target, p['current_bet'] + p['balance'])
+            return ('raise', target)
+        # BLUFF >:)
+        if equity < 0.25 and legal['raise'] and random.random() < 0.15:
+            target = state['current_bet'] + state['min_raise'] * 2
+            target = min(target, p['current_bet'] + p['balance'])
+            return ('raise', target)
+        return ('check', 0)
+    pot_odds = needed/(pot+needed)
+    if equity > pot_odds * 1.1 and legal['raise']:
+        target = state['current_bet'] + state['min_raise'] * 3
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', target)
+    elif equity > pot_odds * 0.85 and legal['call']:
+        return ('all_in', 0)
+    elif equity < 0.25 and legal['raise'] and random.random() < 0.1: #bluff raising
+        target = state['current_bet'] + state['min_raise'] * 2
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', target)
+    else:
+        return ('fold', 0)
 
 def human_input(state, player_index, legal):
     p = state['players'][player_index]
