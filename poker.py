@@ -230,39 +230,37 @@ def reset_for_new_hand(state):
     return state
 
 def collect_bets(state):
-    contributors = []
-    for index, player in enumerate(state["players"]):
-        if player['current_bet'] > 0:
-            contributors.append((index, player['current_bet'], player['has_folded']))
-    if not contributors:
-        return #nothing happened lol
-    levels = sorted(set([contributor[1] for contributor in contributors]))
+    for player in state["players"]:
+        player['current_bet'] = 0
+    state["current_bet"] = 0
+    state["min_raise"] = state["big_blind"]
+    state['pot'] = sum(p['total_committed'] for p in state["players"])
+
+def build_pots(state):
+    contributors = [(i, p['total_committed'], p['has_folded'])
+                    for i, p in enumerate(state['players']) if p['total_committed'] > 0]
+    pots = []
+    levels = sorted(set(c[1] for c in contributors))
     previous_level = 0
     for level in levels:
-        # pot logic: if someone all in, they can only receive max 5* their all in assuming everyone else is still in.
-        slice_size = level-previous_level
-        pot_amt = slice_size * len([c[1] for c in contributors if c[1] >= level])
+        slice_size = level - previous_level
+        pot_amt = slice_size * len([c for c in contributors if c[1] >= level])
         eligible = sorted([c[0] for c in contributors if c[1] >= level and not c[2]])
         if not eligible:
-            if state['pots']:
-                state['pots'][-1]['amount'] += pot_amt
+            if pots:
+                pots[-1]['amount'] += pot_amt
             previous_level = level
             continue
         merged = False
-        for existing_pot in state["pots"]:
-            if sorted(existing_pot["eligible"]) == eligible:
-                existing_pot['amount'] += pot_amt
+        for pot in pots:
+            if pot['eligible'] == eligible:
+                pot['amount'] += pot_amt
                 merged = True
                 break
         if not merged:
-            state["pots"].append({"amount":pot_amt, "eligible":eligible})
+            pots.append({'amount': pot_amt, 'eligible': eligible})
         previous_level = level
-
-    for player in state["players"]:
-        player['current_bet'] = 0 #refresh for next round
-    state['pot'] = sum(player['amount'] for player in state["pots"])
-    state["current_bet"] = 0
-    state["min_raise"] = state["big_blind"]
+    state['pots'] = pots
 
 def award_pots(state): #compare hands and distribute winnings. If tie and not int, give remaining chips to winner closest to the left of the dealer
     results = []
@@ -308,24 +306,31 @@ def apply_action(state, player_index, action, amount):
         player['balance'] -= amount
         player['current_bet'] += amount
         player['total_committed'] += amount
-        player['last_action'] = f"CALL ${amount}"
+        if player['balance'] == 0:
+            player['is_all_in'] = True
+            player['last_action'] = f"ALL IN ${player['current_bet']}"
+        else:
+            player['last_action'] = f"CALL ${amount}"
         return
     if action == "raise":
         extra_money_needed = amount - player['current_bet']
         player['balance'] -= extra_money_needed
         player['current_bet'] = amount
         player['total_committed'] += extra_money_needed
-        increment = amount - state['current_bet']
-        state['min_raise'] = max(state['min_raise'], increment)
         state['current_bet'] = amount
-        player['last_action'] = f"RAISE TO ${amount}"
+        if player['balance'] == 0:
+            player['is_all_in'] = True
+            player['last_action'] = f"ALL IN ${amount}"
+        else:
+            player['last_action'] = f"RAISE ${amount}"
         return
-    if action == 'all_in': # wow either very poor or very confident
+    if action == 'all_in':
         actual = player['balance']
         player['balance'] = 0
         player['current_bet'] += actual
         player['total_committed'] += actual
-        if player['current_bet'] > state['current_bet']: # enough to match
+        player['is_all_in'] = True  # ← ADD THIS LINE
+        if player['current_bet'] > state['current_bet']:
             increment = player['current_bet'] - state['current_bet']
             state['min_raise'] = max(state['min_raise'], increment)
             state['current_bet'] = player['current_bet']
@@ -390,6 +395,180 @@ def legal_actions(state, player_index):
 
     return legal
 
+def estimate_equity(state, player_index, trials=250): # for bot evaluation of cards
+    my_hole_cards = state['players'][player_index]['hole_cards']
+    board = state['board']
+    known = set(my_hole_cards + board)
+    remaining = [num + suit for num in nums for suit in suits if num+suit not in known]
+    n_opponents = sum(1 for i, op in enumerate(state["players"]) if i != player_index and not op["has_folded"] and not op["is_busted"])
+    n_board_needed = 5 - len(board)
+    wins = 0
+    ties = 0
+    for trial in range(trials):
+        needed = n_opponents * 2 + n_board_needed
+        sample = random.sample(remaining, needed)
+        opp_hands = []
+        pos = 0
+        for i in range(n_opponents):
+            opp_hands.append([sample[pos], sample[pos+1]])
+            pos += 2
+        simulate_board = board + sample[pos:pos + n_board_needed]
+        my_best = best_hand(my_hole_cards + simulate_board)
+        opp_bests = [best_hand(h + simulate_board) for h in opp_hands]
+        best_opp = max(opp_bests) if opp_bests else None
+        if best_opp is None or my_best > best_opp:
+            wins += 1
+        elif my_best == best_opp:
+            ties += 1
+    return (wins + ties * 0.5)/trials
+
+def Vinnie(state, player_index, legal):
+    equity = estimate_equity(state, player_index, trials=250)
+    p = state['players'][player_index]
+    needed = state['current_bet'] - p['current_bet']
+    pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
+    if p['current_bet'] >= state['big_blind'] * 6:  # already deep, stop escalating
+        if equity > 0.6 and legal['call']:
+            return ('call', legal['call'])
+        elif legal['check']:
+            return ('check', 0)
+        else:
+            return ('fold', 0)
+
+    # if no bet needed, vinnie can check
+    if needed == 0:
+        if equity > 0.65 and legal['raise']:
+            target = state['current_bet'] + state['min_raise'] * (1.5+random.random()/2)
+            target = min(target, p['current_bet'] + p['balance']) # cant raise more than balance
+            return ('raise', int(target))
+        return ('check', 0)
+
+    pot_odds = needed/(pot+needed)
+    if equity > pot_odds * 1.5 and legal['raise']:
+        #strong cards so raise a bit
+        target = state['current_bet'] + state['min_raise'] * 2
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', target)
+    elif equity > pot_odds and legal['call']:
+        return ('call', legal['call'])
+    elif equity > pot_odds and legal['all_in']:
+        # if you can't call normally but cards ok, just force allin
+        return ('all_in', 0)
+    else:
+        if legal['check']:
+            return ('check', 0) # if check is free, check, else fold
+        return ('fold', 0)
+
+def Shawn(state, player_index, legal):
+    equity = estimate_equity(state, player_index, trials=250)
+    p = state['players'][player_index]
+    needed = state['current_bet'] - p['current_bet']
+    pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
+    if p['current_bet'] >= state['big_blind'] * 6.5:  # already deep, stop escalating
+        if equity > 0.6 and legal['call']:
+            return ('call', legal['call'])
+        elif legal['check']:
+            return ('check', 0)
+        else:
+            return ('fold', 0)
+    if needed == 0:
+        if equity > 0.5 and legal['raise']:
+            target = state['current_bet'] + state['min_raise'] * (2+random.random())
+            target = min(target, p['current_bet'] + p['balance'])
+            return ('raise', int(target))
+        # BLUFF >:)
+        if equity < 0.25 and legal['raise'] and random.random() < 0.15:
+            target = state['current_bet'] + state['min_raise'] * (1.5+random.random()/2)
+            target = min(target, p['current_bet'] + p['balance'])
+            return ('raise', int(target))
+        return ('check', 0)
+    pot_odds = needed/(pot+needed)
+    if equity > pot_odds * 1.1 and legal['raise']:
+        target = state['current_bet'] + state['min_raise'] * (1.5+random.random()*1.5)
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', int(target))
+    elif equity > pot_odds * 0.85 and legal['call']:
+        return ('call', legal['call'])
+    elif equity < 0.25 and legal['raise'] and random.random() < 0.1: #bluff raising
+        target = state['current_bet'] + state['min_raise'] * (1+random.random())
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', int(target))
+    else:
+        return ('fold', 0)
+
+def Roy(state, player_index, legal):
+    equity = estimate_equity(state, player_index, trials=250)
+    p = state['players'][player_index]
+    needed = state['current_bet'] - p['current_bet']
+    if p['current_bet'] >= state['big_blind'] * 5:  # already deep, stop escalating
+        if equity > 0.6 and legal['call']:
+            return ('call', legal['call'])
+        elif legal['check']:
+            return ('check', 0)
+        else:
+            return ('fold', 0)
+    if needed == 0:
+        if equity > 0.75 and legal['raise']:
+            target = state['current_bet'] + state['min_raise'] * (1.2+4*random.random()/5)
+            target = min(target, p['current_bet'] + p['balance'])
+            return ('raise', int(target))
+        return ('check', 0)
+    pot = state['pot'] + sum(pl['current_bet'] for pl in state['players'])
+    pot_odds = needed / (pot + needed)
+
+    if equity > 0.75 and legal['raise']:
+        # raise only on strong hands
+        target = state['current_bet'] + state['min_raise'] * (1 + random.random())
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', int(target))
+    elif equity > pot_odds * 1.05 and legal['call']:
+        return ('call', legal['call'])
+    elif equity > pot_odds * 1.05 and legal['all_in']:
+        return ('all_in', 0)
+    else:
+        return ('fold', 0)
+
+def Charles(state, player_index, legal):
+    equity = estimate_equity(state, player_index)
+    p = state['players'][player_index]
+    needed = state['current_bet'] - p['current_bet']
+    already_in = p['total_committed']
+    if p['current_bet'] >= state['big_blind'] * 4:  # already deep, stop escalating
+        if equity > 0.6 and legal['call']:
+            return ('call', legal['call'])
+        elif legal['check']:
+            return ('check', 0)
+        else:
+            return ('fold', 0)
+    if already_in > 400 and equity < 0.5:
+        if legal['check']:
+            return ('check', 0)
+        return ('fold', 0)
+    if needed == 0:
+        return ('check', 0)
+    if equity > 0.85:
+        target = state['current_bet'] + state['min_raise'] * (2+random.random()/2)
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', int(target))
+    elif equity > 0.75:
+        return ('fold', 0)
+    elif equity > 0.5:
+        if random.random() < 0.6:
+            if legal['call']:
+                return ('call', legal['call'])
+            elif legal['check']:
+                return ('check', 0)
+        return ('fold', 0)
+    elif equity < 0.4 and legal['raise'] and random.random() < 0.4:
+        target = state['current_bet'] + state['min_raise'] * (1.8+random.random()/5)
+        target = min(target, p['current_bet'] + p['balance'])
+        return ('raise', int(target))
+    if legal['call']:
+        return ('call', legal['call'])
+    if legal['check']:
+        return ('check', 0)
+    return ('fold', 0)
+
 def human_input(state, player_index, legal):
     p = state['players'][player_index]
     options = []
@@ -442,16 +621,22 @@ def human_input(state, player_index, legal):
         print("Invalid action.")
 def get_action(state, player_index, legal):
     # temporarily, since no bots, check if can, else call, else fold
-    if player_index == 2:
+    if state['players'][player_index]['name'] == "You":
         return human_input(state, player_index, legal)
-    if player_index == 0:
-        if legal.get("check"):
-            return ('check', 0)
-        if legal.get("call"):
-            return ('call', legal['call'])
-        return ('fold', 0)
-    else:
-        return ('fold',0)
+    elif state['players'][player_index]['name'] == 'Vinnie':
+        time.sleep(3)
+        return Vinnie(state, player_index, legal)
+    elif state['players'][player_index]['name'] == 'Shawn':
+        time.sleep(3)
+        return Shawn(state, player_index, legal)
+    elif state['players'][player_index]['name'] == 'Roy':
+        time.sleep(3)
+        return Roy(state, player_index, legal)
+    elif state['players'][player_index]['name'] == 'Charles':
+        time.sleep(3)
+        return Charles(state, player_index, legal)
+    return False # this never gets reached
+
 
 
 
@@ -473,7 +658,11 @@ def betting_round(state):
         return
 
     if state['stage'] != 'preflop' and closing_player is None:
-        closing_player = start
+        closing_player = next_active_right(state, start)
+    if state['stage'] != 'preflop':
+        for pl in state['players']:
+            if not pl['has_folded'] and not pl['is_all_in'] and not pl['is_busted']:
+                pl['last_action'] = ''
     current = start
     iterations = 0 # --> guard against infiniteloops in testing
     while True:
@@ -483,7 +672,9 @@ def betting_round(state):
             break
         player = state['players'][current]
         if player['has_folded'] or player['is_all_in']:
-            current = next_active(state, closing_player)
+            if count_able_to_act(state) == 0:
+                return
+            current = next_active(state, current)
             continue
         prev_table_bet = state['current_bet']
         #applyaction
@@ -571,6 +762,7 @@ def play_hand(state):
         state["board"].append(state["deck"].pop())
     #showdown
     state["stage"] = "showdown"
+    build_pots(state)
     results = award_pots(state)
     all_winners = set()
     for pot_index, winners, amount in results:
@@ -592,12 +784,13 @@ def play_hand(state):
         else:
             split_amount = amount // len(winners)
             print(f"{pot_label} (${amount}): split between {winner_names} (${split_amount} each)")
-    state['dealer_pos'] = (state['dealer_pos'] - 1) % 5
     for p in state["players"]:
         if p["balance"] == 0 and not p["is_busted"]:
             p["is_busted"] = True
             verb = "have" if p["is_human"] else "has"
             print(f"{p['name']} {verb} been eliminated!")
+
+    state['dealer_pos'] = next_non_busted(state, state['dealer_pos'])
 
 
 
@@ -689,24 +882,16 @@ def poker_play(): #hardcode player to p3
     hand_num = 0
     while sum(1 for p in state["players"] if not p["is_busted"]) > 1:
         hand_num += 1
-        print('testing...')
         play_hand(state)
-        a = input('enter to continue')
-    winner = next(p for p in state["players"] if not p["is_busted"])
-    print(f"\n{winner['name']} wins the game with ${winner['balance']}!")
+        if sum(1 for p in state['players'] if not p["is_busted"]) <= 1:
+            winner = next(p for p in state["players"] if not p["is_busted"])
+            print(f"\n{winner['name']} wins the game with ${winner['balance']}!")
+            break
+        c = input('Press enter to continue, or Q to quit: ').strip().upper()
+        if c == "Q":
+            break
 
 #test
 if __name__ == "__main__":
-    #p1,p2,p3,p4,p5,river = deal(poker_shuffle())
-    #construct = [best_hand(p1+river), best_hand(p2+river), best_hand(p3+river), best_hand(p4+river), best_hand(p5+river)]
-    #print(river)
-    #print(p1, hands[construct[0][0]])
-    #print(p2, hands[construct[1][0]])
-    #print(p3, hands[construct[2][0]])
-    #print(p4, hands[construct[3][0]])
-    #print(p5, hands[construct[4][0]])
-    #print(showdown(construct))
-    #state = {"players": [{"name": "Vinnie", "balance": 1000, "hole_cards": p1, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Shawn", "balance": 1000, "hole_cards": p2, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "You", "balance": 1000, "hole_cards": p3, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": True, "last_action": ""}, {"name": "Roy", "balance": 1000, "hole_cards": p4, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}, {"name": "Charles", "balance": 1000, "hole_cards": p5, "current_bet": 0, "total_committed": 0, "has_folded": False, "is_all_in": False, "is_human": False, "last_action": ""}], "board": [], "deck": [], "pots": [], "pot": 0, "current_bet": 0, "min_raise": 20, "dealer_pos": 2, "small_blind": 10, "big_blind": 20, "stage": "preflop", "last_raiser": None}
-    #print_board(state, 1)
 
     poker_play()
