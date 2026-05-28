@@ -4,7 +4,13 @@
 My Console Gamer Project is a runnable no-internet application that runs in the terminal/console, and you can play a variety of different games on it. Have fun! :)))
 
 ## Usage:
-To use this project, type the following commands into your terminal.
+### Windows:
+
+
+
+To use the project files directly, type the following commands into your terminal.
+
+```pip install colorama```
 
 ```git clone https://github.com/vincentchen18/Horizon-CRUX-GameApp```
 
