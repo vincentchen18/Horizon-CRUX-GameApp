@@ -890,7 +890,10 @@ def poker_play(): #hardcode player to p3
             winner = next(p for p in state["players"] if not p["is_busted"])
             print(f"\n{winner['name']} wins the game with ${winner['balance']}!")
             break
-        a = input('enter to continue')
+        c = input('Press enter to continue, or Q to quit: ').strip().upper()
+        if c == "Q":
+            break
+
 
 
 #test
