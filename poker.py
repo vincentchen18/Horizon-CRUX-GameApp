@@ -399,6 +399,34 @@ def legal_actions(state, player_index):
 
     return legal
 
+def estimate_equity(state, player_index, trials=250): # for bot evaluation of cards
+    my_hole_cards = state['players'][player_index]['hole_cards']
+    board = state['board']
+    known = set(my_hole_cards + board)
+    remaining = [num + suit for num in nums for suit in suits if num+suit not in known]
+    n_opponents = sum(1 for i, op in enumerate(state["players"]) if i != player_index and not op["has_folded"] and not op["is_busted"])
+    n_board_needed = 5 - len(board)
+    wins = 0
+    ties = 0
+    for trial in range(trials):
+        needed = n_opponents * 2 + n_board_needed
+        sample = random.sample(remaining, needed)
+        opp_hands = []
+        pos = 0
+        for i in range(n_opponents):
+            opp_hands.append([sample[pos], sample[pos+1]])
+            pos += 2
+        simulate_board = board + sample[pos:pos + n_board_needed]
+        my_best = best_hand(my_hole_cards + simulate_board)
+        opp_bests = [best_hand(h + simulate_board) for h in opp_hands]
+        best_opp = max(opp_bests) if opp_bests else None
+        if best_opp is None or my_best > best_opp:
+            wins += 1
+        elif my_best == best_opp:
+            ties += 1
+    return (wins + ties * 0.5)/trials
+
+
 def human_input(state, player_index, legal):
     p = state['players'][player_index]
     options = []
