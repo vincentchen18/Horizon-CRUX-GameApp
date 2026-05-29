@@ -82,3 +82,5 @@ Side Note: I do not endorse or encourage gambling.
 # AI Disclosure
 Generative AI tools were used for a small part of algorithm explanations and finding bugs. However, all the main logic and all the code was written and tested by me.
 
+## Note to Horizons organisers
+My hours are split across like 5 different projects, and they're all part of this one, I just had some issues with configuring my wakatime project files in the beginning so yeah :)))
